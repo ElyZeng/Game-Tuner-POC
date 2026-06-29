@@ -22,6 +22,7 @@ from .settings_parser import (
     FRAME_GENERATION,
     _parse_ini_kv,
 )
+QUICK_PRESET = "quick_preset"
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
@@ -150,6 +151,12 @@ def _write_cyberpunk(
         else:
             _set_option("FrameGeneration", True)
 
+
+    # Quick Preset ? write QuickPresets field under /graphics/presets
+    val = settings.get(QUICK_PRESET)
+    if val is not None and val not in ("N/A", "—"):
+        _set_option("QuickPresets", val, "/graphics/presets")
+
     return json.dumps(data, indent=4, ensure_ascii=False)
 
 
@@ -226,10 +233,16 @@ def _write_unreal_ini(
         elif "FSR" in val:
             result = _replace_ini_value(result, "FSRFrameGenerationMode", "On")
 
+    # Quick Preset — GPUConfigPreset: -1=Custom, 0=Low, 1=Medium, 2=High, 3=Ultra
+    val = settings.get(QUICK_PRESET)
+    if val is not None and val not in ("N/A", "—"):
+        preset_to_int = {"Low": "0", "Medium": "1", "High": "2", "Ultra": "3", "Custom": "-1"}
+        gcp_val = preset_to_int.get(val, "-1")
+        result = _replace_ini_value(result, "GPUConfigPreset", gcp_val)
+
     return result
 
 
-# ── Forza Horizon XML Writer ────────────────────────────────────────
 
 def _write_forza_xml(
     content: str, settings: Dict[str, Optional[str]]

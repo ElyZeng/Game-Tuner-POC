@@ -1,6 +1,6 @@
 """Parse key graphics settings from game config file content.
 
-Extracts 7 standardised settings from various config formats:
+Extracts 8 standardised settings from various config formats:
 1. Resolution
 2. Screen Mode
 3. V-Sync
@@ -8,6 +8,7 @@ Extracts 7 standardised settings from various config formats:
 5. Dynamic Resolution
 6. Upscaling (DLSS / FSR / XeSS)
 7. Frame Generation / Multi Frame Generation
+8. Quick Preset
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ FRAME_LIMIT = "frame_limit"
 DYNAMIC_RESOLUTION = "dynamic_resolution"
 UPSCALING = "upscaling"
 FRAME_GENERATION = "frame_generation"
+QUICK_PRESET = "quick_preset"
 
 ALL_KEYS = [
     RESOLUTION,
@@ -34,6 +36,7 @@ ALL_KEYS = [
     DYNAMIC_RESOLUTION,
     UPSCALING,
     FRAME_GENERATION,
+    QUICK_PRESET,
 ]
 
 # Human-readable display names (Chinese)
@@ -45,6 +48,7 @@ DISPLAY_NAMES = {
     DYNAMIC_RESOLUTION: "動態解析度",
     UPSCALING: "升頻技術",
     FRAME_GENERATION: "畫格生成",
+    QUICK_PRESET: "畫質預設",
 }
 
 DISPLAY_NAMES_EN = {
@@ -55,6 +59,7 @@ DISPLAY_NAMES_EN = {
     DYNAMIC_RESOLUTION: "Dynamic Resolution",
     UPSCALING: "Upscaling",
     FRAME_GENERATION: "Frame Generation",
+    QUICK_PRESET: "Quick Preset",
 }
 
 # Dropdown options for each setting.  The first value is the default /
@@ -108,6 +113,42 @@ SETTING_OPTIONS: Dict[str, List[str]] = {
         "Off",
         "On",
     ],
+    # Quick Preset uses per-game options; this is the generic fallback.
+    QUICK_PRESET: [
+        "—",
+    ],
+}
+
+# Per-game Quick Preset option lists keyed by parser-type string.
+QUICK_PRESET_OPTIONS: Dict[str, List[str]] = {
+    # Cyberpunk 2077 — QuickPresets field in UserSettings.json; known values from game UI
+    "cyberpunk": [
+        "—",
+        "Low",
+        "Medium",
+        "High",
+        "Ultra",
+        "Ray Tracing Medium",
+        "Ray Tracing High",
+        "Ray Tracing Ultra",
+        "Path Tracing",
+    ],
+    # Unreal Engine games using GPUConfigPreset integer (Hogwarts Legacy, etc.)
+    "unreal_ini": [
+        "—",
+        "Low",
+        "Medium",
+        "High",
+        "Ultra",
+    ],
+    # Forza Horizon XML — no single overall preset field
+    "forza_xml": ["—"],
+    # Registry-based games — no known preset field
+    "registry_json": ["—"],
+    # CS2 — no preset support
+    "cs2": ["—"],
+    # Unknown / generic
+    "default": ["—"],
 }
 
 
@@ -147,7 +188,6 @@ def _parse_cyberpunk(content: str) -> Dict[str, Optional[str]]:
     vs = options_map.get("VSync") or options_map.get("/video/display/VSync")
     if vs:
         val = str(vs.get("value", ""))
-        # Cyberpunk uses localization keys like "UI-Settings-Video-QualitySetting-Off"
         if "Off" in val:
             r[VSYNC] = "Off"
         elif "On" in val:
@@ -175,7 +215,6 @@ def _parse_cyberpunk(content: str) -> Dict[str, Optional[str]]:
     rs = options_map.get("ResolutionScaling")
     if rs:
         method = str(rs.get("value", "Off"))
-        # Try to get the quality of the active method
         quality = ""
         method_opt = options_map.get(method.upper()) or options_map.get(method)
         if method_opt:
@@ -193,10 +232,15 @@ def _parse_cyberpunk(content: str) -> Dict[str, Optional[str]]:
     if parts:
         r[FRAME_GENERATION] = " / ".join(parts)
 
+    # Quick Preset — stored under /graphics/presets/QuickPresets
+    qp = options_map.get("/graphics/presets/QuickPresets") or options_map.get("QuickPresets")
+    if qp is not None:
+        r[QUICK_PRESET] = str(qp.get("value", "Custom"))
+
     return r
 
 
-# ── Unreal Engine INI (ARC Raiders GameUserSettings.ini) ─────────────
+# ── Unreal Engine INI (ARC Raiders, Hogwarts Legacy, etc.) ───────────
 
 def _parse_ini_kv(content: str) -> Dict[str, str]:
     """Parse simple key=value lines from INI-like content."""
@@ -263,6 +307,12 @@ def _parse_unreal_ini(content: str) -> Dict[str, Optional[str]]:
     if dlss_fg or fsr_fg:
         r[FRAME_GENERATION] = " / ".join(parts) if parts else "Off"
 
+    # Quick Preset — GPUConfigPreset: -1=Custom, 0=Low, 1=Medium, 2=High, 3=Ultra
+    gcp = kv.get("GPUConfigPreset")
+    if gcp is not None:
+        preset_map = {"-1": "Custom", "0": "Low", "1": "Medium", "2": "High", "3": "Ultra"}
+        r[QUICK_PRESET] = preset_map.get(gcp, f"Preset {gcp}")
+
     return r
 
 
@@ -323,11 +373,13 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
 
     # Frame Generation
     dlssg = _sel_val("DLSSGMode")
-    fsr3_fg = _sel_val("FSR3Mode")
     parts = []
     if dlssg and dlssg != "0":
-        parts.append(f"DLSS FG: On")
+        parts.append("DLSS FG: On")
     r[FRAME_GENERATION] = ", ".join(parts) if parts else "Off"
+
+    # Quick Preset — Forza XML has no single overall preset field
+    r[QUICK_PRESET] = "N/A"
 
     return r
 
@@ -363,7 +415,7 @@ def _parse_registry_json(content: str, game_hint: str = "") -> Dict[str, Optiona
     if vs is not None:
         r[VSYNC] = "On" if vs != 0 else "Off"
 
-    # Frame Limit – HZD has DynamicResolutionTargetFPS, SOTR has ForceHalfRefreshRate
+    # Frame Limit
     drt = gfx.get("DynamicResolutionTargetFPS")
     fhr = gfx.get("ForceHalfRefreshRate")
     if drt is not None:
@@ -410,11 +462,13 @@ def _parse_registry_json(content: str, game_hint: str = "") -> Dict[str, Optiona
         parts.append("Frame Gen: On")
     if dlssg and dlssg != 0:
         parts.append("DLSS-G: On")
-    # If game has RayTracing but no FrameGen keys, it's an older title
     if fg is None and dlssg is None:
         r[FRAME_GENERATION] = "N/A"
     else:
         r[FRAME_GENERATION] = ", ".join(parts) if parts else "Off"
+
+    # Quick Preset — registry-based games have no known preset field
+    r[QUICK_PRESET] = "N/A"
 
     return r
 
@@ -432,8 +486,6 @@ def _parse_cs2(all_configs: List[Dict[str, Any]]) -> Dict[str, Optional[str]]:
         content = cfg.get("content") or ""
         path = cfg.get("expanded_path", "")
         if "cs2_video" in path.lower():
-            video_kv = _parse_ini_kv(content.replace("\t\t", "=").replace('"', '').replace("\t", ""))
-            # Actually parse the Valve KV format properly
             video_kv = {}
             for line in content.splitlines():
                 line = line.strip()
@@ -483,9 +535,10 @@ def _parse_cs2(all_configs: List[Dict[str, Any]]) -> Dict[str, Optional[str]]:
         fsr_map = {"0": "Off", "1": "Ultra Quality", "2": "Quality", "3": "Balanced", "4": "Performance"}
         r[UPSCALING] = f"FSR ({fsr_map.get(fsr, fsr)})" if fsr != "0" else "Off"
 
-    # CS2 has no Dynamic Resolution or Frame Generation
+    # CS2 has no Dynamic Resolution, Frame Generation, or Quick Preset
     r[DYNAMIC_RESOLUTION] = "N/A"
     r[FRAME_GENERATION] = "N/A"
+    r[QUICK_PRESET] = "N/A"
 
     return r
 
@@ -496,7 +549,7 @@ def extract_key_settings(
     game_name: str,
     config_files: List[Dict[str, Any]],
 ) -> Dict[str, Optional[str]]:
-    """Extract the 7 key graphics settings from a game's config files.
+    """Extract the 8 key graphics settings from a game's config files.
 
     Parameters
     ----------
@@ -509,34 +562,28 @@ def extract_key_settings(
     Returns
     -------
     dict
-        A dict mapping each of the 7 setting keys to a human-readable
+        A dict mapping each of the 8 setting keys to a human-readable
         value string, or ``None`` if not found.
     """
-    # Filter to configs that have readable content
     readable = [c for c in config_files if c.get("content") and c.get("found")]
     if not readable:
         return _empty_result()
 
     name_lower = game_name.lower()
 
-    # Cyberpunk 2077 – JSON-structured config
     if "cyberpunk" in name_lower:
         return _parse_cyberpunk(readable[0]["content"])
 
-    # CS2 – multiple config files, needs special handling
     if "counter-strike" in name_lower or "cs2" in name_lower:
         return _parse_cs2(readable)
 
-    # Forza Horizon – XML format
     if "forza" in name_lower:
         return _parse_forza_xml(readable[0]["content"])
 
-    # Registry-based games (HZD, Shadow of TR)
     for cfg in readable:
         if cfg.get("type") == "registry":
             return _parse_registry_json(cfg["content"], game_hint=name_lower)
 
-    # Unreal Engine INI fallback (ARC Raiders, etc.)
     for cfg in readable:
         content = cfg["content"]
         if "ResolutionSizeX" in content or "FullscreenMode" in content:
