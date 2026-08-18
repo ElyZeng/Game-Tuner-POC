@@ -18,7 +18,7 @@
 | 遊戲 | 解析度 | 螢幕模式 | VSync | 幀率限制 | 超採樣 | 幀生成 | 畫質預設 |
 |---|---|---|---|---|---|---|---|
 | Black Myth: Wukong | 3840x2160 | Borderless Windowed | Off | Unlimited | DLSS (mode 1) | On | Medium |
-| Clair Obscur: Expedition 33 | 3840x2160 | Borderless Windowed | Off | Unlimited | XeSS (mode 5) | On (mode 1) | 未解析 |
+| Clair Obscur: Expedition 33 | 3840x2160 | Borderless Windowed | Off | Unlimited | XeSS (mode 5) | On (mode 1) | Medium |
 | Counter-Strike 2 | 3840x2160 | Borderless Windowed | Off | 400 FPS | Off | N/A | N/A |
 | Street Fighter 6 | 1680x1050 | Windowed | On | 60 FPS | Off | N/A | Custom |
 | F1 25 | 1920x1080 | Fullscreen | Off | Unlimited | Off | Off | N/A |

@@ -284,6 +284,26 @@ def _parse_black_myth(content: str) -> Dict[str, Optional[str]]:
     return r
 
 
+def _parse_expedition_33(content: str) -> Dict[str, Optional[str]]:
+    """Parse Expedition 33's Unreal settings and scalability preset."""
+    r = _parse_unreal_ini(content)
+    kv = _parse_ini_kv(content)
+    quality_values = {
+        value
+        for key, value in kv.items()
+        if key.startswith("sg.")
+        and key.endswith("Quality")
+        and key != "sg.ResolutionQuality"
+    }
+    quality_map = {"0": "Low", "1": "Medium", "2": "High", "3": "Epic", "4": "Cinematic"}
+    if len(quality_values) == 1:
+        value = next(iter(quality_values))
+        r[QUICK_PRESET] = quality_map.get(value, f"Quality Level {value}")
+    elif quality_values:
+        r[QUICK_PRESET] = "Custom"
+    return r
+
+
 # ── Unreal Engine INI (ARC Raiders, Hogwarts Legacy, etc.) ───────────
 
 def _parse_ini_kv(content: str) -> Dict[str, str]:
@@ -746,6 +766,9 @@ def extract_key_settings(
 
     if "black myth" in name_lower or "wukong" in name_lower:
         return _parse_black_myth(readable[0]["content"])
+
+    if "clair obscur" in name_lower or "expedition 33" in name_lower:
+        return _parse_expedition_33(readable[0]["content"])
 
     if "street fighter" in name_lower or "streetfighter" in name_lower:
         return _parse_sf6(readable[0]["content"])

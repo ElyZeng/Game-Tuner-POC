@@ -262,6 +262,10 @@ ResolutionSizeY=2160
 FullscreenMode=1
 bUseVSync=False
 FrameRateLimit=0.000000
+    sg.ViewDistanceQuality=1
+    sg.ShadowQuality=1
+    sg.TextureQuality=1
+    sg.EffectsQuality=1
 CurrentSelectedUpscaler=XeSS
 CurrentSelectedUpscalerQualityMode=5
 CurrentSelectedFrameGenerationMode=1
@@ -273,6 +277,7 @@ CurrentSelectedFrameGenerationMode=1
 
         assert result["upscaling"] == "XeSS (mode 5)"
         assert result["frame_generation"] == "On (mode 1)"
+        assert result["quick_preset"] == "Medium"
 
 
 class TestConfigExporterWithWiki:
