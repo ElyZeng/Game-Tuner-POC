@@ -204,6 +204,32 @@ DisplayMode154_Height=1050
         assert result["frame_generation"] == "N/A"
 
 
+class TestF1Parser:
+    def test_parse_hardware_settings_config(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """<hardware_settings_config>
+  <resolution width="1920" height="1080" displayMode="1" vsync="false" frameRateLimiterEnabled="false" frameRateLimiterValue="120" />
+  <antialiasing taa="true" cas="1" dlss="true" fsr3="0" xess="false" />
+  <frame_gen mode="0" />
+  <multi_frame_gen value="0" />
+  <dynamicresolution_enabled value="false" />
+</hardware_settings_config>"""
+        result = extract_key_settings(
+            "F1 25",
+            [{"found": True, "content": content, "expanded_path": "hardware_settings_config.xml"}],
+        )
+
+        assert result["resolution"] == "1920x1080"
+        assert result["screen_mode"] == "Fullscreen"
+        assert result["vsync"] == "Off"
+        assert result["frame_limit"] == "Unlimited"
+        assert result["upscaling"] == "DLSS"
+        assert result["frame_generation"] == "Off"
+        assert result["dynamic_resolution"] == "Off"
+        assert result["quick_preset"] == "N/A"
+
+
 class TestConfigExporterWithWiki:
     def test_export_pcgamingwiki_section_populated(self, tmp_path):
         mock_wiki = _make_wiki_mock(

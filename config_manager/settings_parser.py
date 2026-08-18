@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import re
+import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional
 
 
@@ -434,6 +435,77 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     return r
 
 
+# ── F1 25 hardware_settings_config.xml ─────────────────────────────
+
+def _parse_f1_xml(content: str) -> Dict[str, Optional[str]]:
+    r = _empty_result()
+    try:
+        root = ET.fromstring(content)
+    except (ET.ParseError, ValueError):
+        return r
+
+    def find_node(name: str) -> Optional[ET.Element]:
+        return next((node for node in root.iter(name)), None)
+
+    resolution = find_node("resolution")
+    if resolution is not None:
+        width = resolution.get("width")
+        height = resolution.get("height")
+        if width and height:
+            r[RESOLUTION] = f"{width}x{height}"
+
+        display_mode = resolution.get("displayMode")
+        display_modes = {
+            "0": "Windowed",
+            "1": "Fullscreen",
+            "2": "Borderless Windowed",
+        }
+        if display_mode in display_modes:
+            r[SCREEN_MODE] = display_modes[display_mode]
+
+        vsync = resolution.get("vsync")
+        if vsync is not None:
+            r[VSYNC] = "On" if vsync.lower() in {"true", "1", "yes"} else "Off"
+
+        limiter_enabled = resolution.get("frameRateLimiterEnabled")
+        limiter_value = resolution.get("frameRateLimiterValue")
+        if limiter_enabled is not None and limiter_enabled.lower() in {"false", "0", "no"}:
+            r[FRAME_LIMIT] = "Unlimited"
+        elif limiter_value:
+            r[FRAME_LIMIT] = f"{limiter_value} FPS"
+
+    anti_aliasing = find_node("antialiasing")
+    if anti_aliasing is not None:
+        dlss = anti_aliasing.get("dlss", "false").lower() in {"true", "1", "yes"}
+        fsr3 = anti_aliasing.get("fsr3", "0")
+        xess = anti_aliasing.get("xess", "false").lower() in {"true", "1", "yes"}
+        if dlss:
+            r[UPSCALING] = "DLSS"
+        elif fsr3 not in {"0", "", "false", "off"}:
+            r[UPSCALING] = f"FSR3 ({fsr3})"
+        elif xess:
+            r[UPSCALING] = "XeSS"
+        else:
+            r[UPSCALING] = "Off"
+
+    frame_gen = find_node("frame_gen")
+    multi_frame_gen = find_node("multi_frame_gen")
+    frame_gen_value = frame_gen.get("mode", "0") if frame_gen is not None else "0"
+    multi_frame_value = multi_frame_gen.get("value", "0") if multi_frame_gen is not None else "0"
+    r[FRAME_GENERATION] = "Off" if frame_gen_value in {"0", "", "off"} and multi_frame_value in {"0", "", "off"} else "On"
+
+    dynamic = find_node("dynamicresolution_enabled")
+    if dynamic is not None:
+        enabled = dynamic.get("value", "false").lower() in {"true", "1", "yes"}
+        target = find_node("dynamicresolution_target_fps")
+        target_value = target.get("value", "") if target is not None else ""
+        r[DYNAMIC_RESOLUTION] = f"On (Target: {target_value} FPS)" if enabled and target_value else ("On" if enabled else "Off")
+
+    # F1 25 has quality components but no single overall quality preset here.
+    r[QUICK_PRESET] = "N/A"
+    return r
+
+
 # ── Registry JSON (HZD, Shadow of TR) ───────────────────────────────
 
 def _parse_registry_json(content: str, game_hint: str = "") -> Dict[str, Optional[str]]:
@@ -632,6 +704,9 @@ def extract_key_settings(
 
     if "forza" in name_lower:
         return _parse_forza_xml(readable[0]["content"])
+
+    if name_lower in {"f1 25", "f1® 25"} or "f1 25" in name_lower:
+        return _parse_f1_xml(readable[0]["content"])
 
     for cfg in readable:
         if cfg.get("type") == "registry":

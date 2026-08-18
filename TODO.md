@@ -7,7 +7,7 @@
 - [x] 使用 `D:\AI\.venv` 執行專案
 - [x] 安裝 `requirements.txt` 中的執行依賴
 - [x] 安裝 `pytest`
-- [x] 通過完整測試：`123 passed`
+- [x] 通過完整測試：`124 passed`
 - [x] 通過依賴檢查：`python -m pip check`
 - [x] 通過 Python 語法檢查：`python -m compileall`
 
@@ -17,7 +17,7 @@
 - [ ] 光與影：33 號遠征隊：讀取 `GameUserSettings.ini`
 - [ ] Counter-Strike 2：讀取 `cs2_video.txt` 與 ConVar 設定
 - [x] Street Fighter 6：已讀取 `config.ini` 並完成專用 parser
-- [ ] F1 25：啟動並儲存一次畫面設定後重新偵測
+- [x] F1 25：已讀取 `hardware_settings_config.xml` 並完成專用 parser
 
 每款遊戲執行：
 
