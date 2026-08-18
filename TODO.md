@@ -7,7 +7,7 @@
 - [x] 使用 `D:\AI\.venv` 執行專案
 - [x] 安裝 `requirements.txt` 中的執行依賴
 - [x] 安裝 `pytest`
-- [x] 通過完整測試：`126 passed`（pytest 測試案例全部通過，不代表遊戲數量）
+- [x] 通過完整測試：`127 passed`（pytest 測試案例全部通過，不代表遊戲數量）
 - [x] 通過依賴檢查：`python -m pip check`
 - [x] 通過 Python 語法檢查：`python -m compileall`
 
@@ -19,11 +19,11 @@
 |---|---|---|---|---|---|---|---|
 | Black Myth: Wukong | 3840x2160 | Borderless Windowed | Off | Unlimited | DLSS (mode 1) | On | Medium |
 | Clair Obscur: Expedition 33 | 3840x2160 | Borderless Windowed | Off | Unlimited | XeSS (mode 5) | On (mode 1) | 未解析 |
-| Counter-Strike 2 | 未解析 | Windowed | 未解析 | 400 FPS | 未解析 | N/A | N/A |
+| Counter-Strike 2 | 3840x2160 | Borderless Windowed | Off | 400 FPS | Off | N/A | N/A |
 | Street Fighter 6 | 1680x1050 | Windowed | On | 60 FPS | Off | N/A | Custom |
 | F1 25 | 1920x1080 | Fullscreen | Off | Unlimited | Off | Off | N/A |
 
-`未解析` 表示原始設定存在但 parser 尚未支援該欄位；`N/A` 表示遊戲或格式沒有該設定項。CS2 本次使用的 Steam 使用者目錄沒有 `cs2_video.txt`，所以解析度、VSync 與超採樣暫時無法取得；前次另一個 Steam 使用者目錄曾讀到 3840x2160、Borderless Windowed、VSync Off、FSR Off。黑神話與 33 號遠征隊的原始檔已含部分超採樣／幀生成欄位，但 parser 尚未支援。Cyberpunk 2077 與 Baldur's Gate 3 的舊資料仍需重新驗證後再加入此表。
+`未解析` 表示原始設定存在但 parser 尚未支援該欄位；`N/A` 表示遊戲或格式沒有該設定項。CS2 現在會保留所有 Steam 使用者目錄，能找到有 `cs2_video.txt` 的帳號，不再依賴目前登入者。黑神話與 33 號遠征隊已完成超採樣與幀生成欄位解析；mode 數值是遊戲設定檔的原始模式編號。Cyberpunk 2077 與 Baldur's Gate 3 的舊資料仍需重新驗證後再加入此表。
 
 - [x] 黑神話：悟空：已解析解析度、全螢幕、畫質預設、超採樣、幀生成
 - [x] 光與影：33 號遠征隊：已讀取 `GameUserSettings.ini` 並解析超採樣與幀生成

@@ -629,6 +629,24 @@ class TestUidGlobResolution:
         assert result is not None
         assert "222" in result
 
+    def test_uid_all_matches_preserved(self, tmp_path):
+        """All Steam user paths are retained for multi-account config lookup."""
+        from wiki_api.pcgamingwiki import _resolve_uid_glob_all
+
+        uid1 = tmp_path / "userdata" / "111" / "730" / "local" / "cfg"
+        uid2 = tmp_path / "userdata" / "222" / "730" / "local" / "cfg"
+        uid1.mkdir(parents=True)
+        uid2.mkdir(parents=True)
+        (uid1 / "cs2_video.txt").write_text("old", encoding="utf-8")
+        (uid2 / "cs2_video.txt").write_text("new", encoding="utf-8")
+
+        pattern = str(tmp_path / "userdata" / "*" / "730" / "local" / "cfg" / "cs2_video.txt")
+        result = _resolve_uid_glob_all(pattern)
+
+        assert len(result) == 2
+        assert any("111" in path for path in result)
+        assert any("222" in path for path in result)
+
     def test_uid_no_wildcard_returns_path_unchanged(self):
         """A path without '*' is returned unchanged by _resolve_uid_glob."""
         from wiki_api.pcgamingwiki import _resolve_uid_glob

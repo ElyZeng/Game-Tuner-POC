@@ -180,17 +180,19 @@ def _resolve_uid_glob(path: str) -> Optional[str]:
     one with the most recent modification time is returned.  Returns
     ``None`` when the glob matches nothing.
     """
+    matches = _resolve_uid_glob_all(path)
+    return matches[0] if matches else None
+
+
+def _resolve_uid_glob_all(path: str) -> List[str]:
+    """Return all paths matching a Steam ``{{P|uid}}`` wildcard."""
     if "*" not in path:
-        return path
+        return [path]
     matches = _glob_module.glob(path)
-    if not matches:
-        return None
-    if len(matches) == 1:
-        return matches[0]
     try:
-        return max(matches, key=os.path.getmtime)
+        return sorted(matches, key=os.path.getmtime, reverse=True)
     except OSError:
-        return matches[0]
+        return sorted(matches)
 
 
 def _expand_path_tokens(path: str, install_path: str = "") -> str:
@@ -377,9 +379,7 @@ def _parse_gamedata_config(
                     expanded_paths.append(reg)
             else:
                 expanded = _expand_path_tokens(raw, install_path=install_path)
-                resolved = _resolve_uid_glob(expanded)
-                if resolved is not None:
-                    expanded_paths.append(resolved)
+                expanded_paths.extend(_resolve_uid_glob_all(expanded))
     return raw_paths, expanded_paths
 
 
@@ -443,9 +443,7 @@ class PCGamingWikiClient:
                     expanded.append(reg)
                 continue
             exp = _expand_path_tokens(raw, install_path=install_path)
-            resolved = _resolve_uid_glob(exp)
-            if resolved is not None:
-                expanded.append(resolved)
+            expanded.extend(_resolve_uid_glob_all(exp))
         return expanded
 
     def search_game(self, title: str) -> Optional[str]:
@@ -597,9 +595,7 @@ class PCGamingWikiClient:
                             expanded_paths.append(reg)
                     else:
                         expanded = _expand_path_tokens(raw_path, install_path=install_path)
-                        resolved = _resolve_uid_glob(expanded)
-                        if resolved is not None:
-                            expanded_paths.append(resolved)
+                        expanded_paths.extend(_resolve_uid_glob_all(expanded))
             return raw_paths, expanded_paths
         except Exception:
             return [], []
