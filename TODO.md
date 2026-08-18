@@ -19,11 +19,11 @@
 |---|---|---|---|---|---|---|---|
 | Black Myth: Wukong | 3840x2160 | Borderless Windowed | Off | Unlimited | 未解析 | 未解析 | 未解析 |
 | Clair Obscur: Expedition 33 | 3840x2160 | Borderless Windowed | Off | Unlimited | 未解析 | 未解析 | 未解析 |
-| Counter-Strike 2 | 3840x2160 | Borderless Windowed | Off | 400 FPS | Off | N/A | N/A |
+| Counter-Strike 2 | 未解析 | Windowed | 未解析 | 400 FPS | 未解析 | N/A | N/A |
 | Street Fighter 6 | 1680x1050 | Windowed | On | 60 FPS | Off | N/A | Custom |
 | F1 25 | 1920x1080 | Fullscreen | Off | Unlimited | Off | Off | N/A |
 
-`未解析` 表示原始設定存在但 parser 尚未支援該欄位；`N/A` 表示遊戲或格式沒有該設定項。Cyberpunk 2077 與 Baldur's Gate 3 的舊資料仍需重新驗證後再加入此表。
+`未解析` 表示原始設定存在但 parser 尚未支援該欄位；`N/A` 表示遊戲或格式沒有該設定項。CS2 本次使用的 Steam 使用者目錄沒有 `cs2_video.txt`，所以解析度、VSync 與超採樣暫時無法取得；前次另一個 Steam 使用者目錄曾讀到 3840x2160、Borderless Windowed、VSync Off、FSR Off。黑神話與 33 號遠征隊的原始檔已含部分超採樣／幀生成欄位，但 parser 尚未支援。Cyberpunk 2077 與 Baldur's Gate 3 的舊資料仍需重新驗證後再加入此表。
 
 - [ ] 黑神話：悟空：解析度、全螢幕、畫質預設、超採樣、幀生成
 - [ ] 光與影：33 號遠征隊：讀取 `GameUserSettings.ini`
