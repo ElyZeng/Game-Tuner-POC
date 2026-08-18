@@ -7,7 +7,7 @@
 - [x] 使用 `D:\AI\.venv` 執行專案
 - [x] 安裝 `requirements.txt` 中的執行依賴
 - [x] 安裝 `pytest`
-- [x] 通過完整測試：`124 passed`
+- [x] 通過完整測試：`124 passed`（pytest 測試案例全部通過，不代表遊戲數量）
 - [x] 通過依賴檢查：`python -m pip check`
 - [x] 通過 Python 語法檢查：`python -m compileall`
 
