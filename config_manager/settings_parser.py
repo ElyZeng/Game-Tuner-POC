@@ -243,6 +243,47 @@ def _parse_cyberpunk(content: str) -> Dict[str, Optional[str]]:
     return r
 
 
+def _parse_black_myth(content: str) -> Dict[str, Optional[str]]:
+    """Parse Black Myth: Wukong's Unreal config and UISettingData tuple."""
+    r = _parse_unreal_ini(content)
+    ui_values = dict(re.findall(r'\("([^"]+)",\s*"([^"]*)"\)', content))
+
+    screen_mode = ui_values.get("ScreenMode")
+    if screen_mode is not None:
+        r[SCREEN_MODE] = {
+            "0": "Fullscreen",
+            "1": "Borderless Windowed",
+            "2": "Windowed",
+        }.get(screen_mode, f"Mode {screen_mode}")
+
+    vsync = ui_values.get("Vsync")
+    if vsync is not None:
+        r[VSYNC] = "On" if vsync in {"1", "true", "True"} else "Off"
+
+    quality = ui_values.get("QualityLevel")
+    if quality is not None:
+        r[QUICK_PRESET] = {
+            "0": "Low",
+            "1": "Medium",
+            "2": "High",
+            "3": "Very High",
+            "4": "Cinematic",
+        }.get(quality, f"Quality Level {quality}")
+
+    dlss = ui_values.get("Dlss")
+    super_resolution = ui_values.get("SuperResolutionSampling")
+    if dlss in {"1", "true", "True"}:
+        r[UPSCALING] = f"DLSS (mode {super_resolution})" if super_resolution else "DLSS"
+    elif super_resolution not in {None, "0"}:
+        r[UPSCALING] = f"Super Resolution (mode {super_resolution})"
+
+    insert_frame = ui_values.get("InsertFrame")
+    if insert_frame is not None:
+        r[FRAME_GENERATION] = "On" if insert_frame in {"1", "true", "True"} else "Off"
+
+    return r
+
+
 # ── Unreal Engine INI (ARC Raiders, Hogwarts Legacy, etc.) ───────────
 
 def _parse_ini_kv(content: str) -> Dict[str, str]:
@@ -292,22 +333,29 @@ def _parse_unreal_ini(content: str) -> Dict[str, Optional[str]]:
 
     # Upscaling
     method = kv.get("ResolutionScalingMethod", "")
+    selected_upscaler = kv.get("CurrentSelectedUpscaler", "")
     dlss = kv.get("DLSSMode", "")
     fsr = kv.get("FSRMode", "")
     xess = kv.get("XeSSMode", "")
-    if method:
+    if selected_upscaler:
+        quality_mode = kv.get("CurrentSelectedUpscalerQualityMode", "")
+        r[UPSCALING] = f"{selected_upscaler} (mode {quality_mode})" if quality_mode else selected_upscaler
+    elif method:
         quality = {"DLSS": dlss, "FSR": fsr, "XeSS": xess}.get(method, "")
         r[UPSCALING] = f"{method} ({quality})" if quality else method
 
     # Frame Generation
     dlss_fg = kv.get("DLSSFrameGenerationMode", "")
     fsr_fg = kv.get("FSRFrameGenerationMode", "")
+    selected_fg = kv.get("CurrentSelectedFrameGenerationMode", "")
     parts = []
     if dlss_fg and dlss_fg != "Off":
         parts.append(f"DLSS FG: {dlss_fg}")
     if fsr_fg and fsr_fg != "Off":
         parts.append(f"FSR FG: {fsr_fg}")
-    if dlss_fg or fsr_fg:
+    if selected_fg:
+        r[FRAME_GENERATION] = "Off" if selected_fg in {"0", "Off", "false", "False"} else f"On (mode {selected_fg})"
+    elif dlss_fg or fsr_fg:
         r[FRAME_GENERATION] = " / ".join(parts) if parts else "Off"
 
     # Quick Preset — GPUConfigPreset: -1=Custom, 0=Low, 1=Medium, 2=High, 3=Ultra
@@ -695,6 +743,9 @@ def extract_key_settings(
 
     if "cyberpunk" in name_lower:
         return _parse_cyberpunk(readable[0]["content"])
+
+    if "black myth" in name_lower or "wukong" in name_lower:
+        return _parse_black_myth(readable[0]["content"])
 
     if "street fighter" in name_lower or "streetfighter" in name_lower:
         return _parse_sf6(readable[0]["content"])

@@ -230,6 +230,51 @@ class TestF1Parser:
         assert result["quick_preset"] == "N/A"
 
 
+class TestGameSpecificUnrealParsers:
+    def test_parse_black_myth_ui_settings(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """[/Script/Engine.GameUserSettings]
+bUseDynamicResolution=False
+ResolutionSizeX=3840
+ResolutionSizeY=2160
+FullscreenMode=1
+FrameRateLimit=0.000000
+UISettingData=(("ScreenMode", "1"),("Vsync", "0"),("Dlss", "1"),("SuperResolutionSampling", "1"),("InsertFrame", "1"),("QualityLevel", "1"))
+"""
+        result = extract_key_settings(
+            "Black Myth: Wukong",
+            [{"found": True, "content": content, "expanded_path": "GameUserSettings.ini"}],
+        )
+
+        assert result["resolution"] == "3840x2160"
+        assert result["screen_mode"] == "Borderless Windowed"
+        assert result["vsync"] == "Off"
+        assert result["upscaling"] == "DLSS (mode 1)"
+        assert result["frame_generation"] == "On"
+        assert result["quick_preset"] == "Medium"
+
+    def test_parse_expedition_selected_upscaler_and_frame_generation(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """ResolutionSizeX=3840
+ResolutionSizeY=2160
+FullscreenMode=1
+bUseVSync=False
+FrameRateLimit=0.000000
+CurrentSelectedUpscaler=XeSS
+CurrentSelectedUpscalerQualityMode=5
+CurrentSelectedFrameGenerationMode=1
+"""
+        result = extract_key_settings(
+            "Clair Obscur: Expedition 33",
+            [{"found": True, "content": content, "expanded_path": "GameUserSettings.ini"}],
+        )
+
+        assert result["upscaling"] == "XeSS (mode 5)"
+        assert result["frame_generation"] == "On (mode 1)"
+
+
 class TestConfigExporterWithWiki:
     def test_export_pcgamingwiki_section_populated(self, tmp_path):
         mock_wiki = _make_wiki_mock(
