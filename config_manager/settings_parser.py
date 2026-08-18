@@ -587,8 +587,24 @@ def _parse_f1_xml(content: str) -> Dict[str, Optional[str]]:
         target_value = target.get("value", "") if target is not None else ""
         r[DYNAMIC_RESOLUTION] = f"On (Target: {target_value} FPS)" if enabled and target_value else ("On" if enabled else "Off")
 
-    # F1 25 has quality components but no single overall quality preset here.
-    r[QUICK_PRESET] = "N/A"
+    # F1 25 has no single overall preset. Infer one from the quality-bearing
+    # component values when possible; mixed component levels are Custom.
+    quality_values = []
+    for node_name, attribute in (
+        ("lighting", "quality"),
+        ("ssrt", "quality"),
+        ("shadows", "sampling"),
+        ("weather_effects", "proceduralCloudQuality"),
+    ):
+        node = find_node(node_name)
+        if node is not None and node.get(attribute) is not None:
+            quality_values.append(node.get(attribute))
+    if len(set(quality_values)) > 1:
+        r[QUICK_PRESET] = "Custom"
+    elif quality_values:
+        r[QUICK_PRESET] = f"Preset Level {quality_values[0]}"
+    else:
+        r[QUICK_PRESET] = "N/A"
     return r
 
 

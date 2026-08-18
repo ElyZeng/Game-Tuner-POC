@@ -255,6 +255,24 @@ class TestForzaPresetInference:
                 assert result["quick_preset"] == "Custom"
 
 
+        class TestF1PresetInference:
+            def test_mixed_quality_components_are_custom(self):
+                from config_manager.settings_parser import extract_key_settings
+
+                content = """<hardware_settings_config>
+          <lighting quality="3" />
+          <ssrt quality="4" />
+          <shadows sampling="3" />
+          <weather_effects proceduralCloudQuality="1" />
+        </hardware_settings_config>"""
+                result = extract_key_settings(
+                    "F1 25",
+                    [{"found": True, "content": content, "expanded_path": "hardware_settings_config.xml"}],
+                )
+
+                assert result["quick_preset"] == "Custom"
+
+
 class TestGameSpecificUnrealParsers:
     def test_parse_black_myth_ui_settings(self):
         from config_manager.settings_parser import extract_key_settings
