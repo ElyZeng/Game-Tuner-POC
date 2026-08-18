@@ -7,7 +7,7 @@
 - [x] 使用 `D:\AI\.venv` 執行專案
 - [x] 安裝 `requirements.txt` 中的執行依賴
 - [x] 安裝 `pytest`
-- [x] 通過完整測試：`129 passed`（pytest 測試案例全部通過，不代表遊戲數量）
+- [x] 通過完整測試：`131 passed`（pytest 測試案例全部通過，不代表遊戲數量）
 - [x] 通過依賴檢查：`python -m pip check`
 - [x] 通過 Python 語法檢查：`python -m compileall`
 
@@ -47,34 +47,35 @@ python cli.py export --games "遊戲英文名稱" --output "遊戲英文名稱-c
 - [x] 設定檔有 `found: true` 與 `content`
 - [x] `parse` 輸出 `resolution` 與 `screen_mode`
 - [x] `parse` 輸出 `quality_preset`、`upscaling` 或 `frame_generation`；不支援時輸出 `N/A`
-- [ ] 匯出檔已備份，且沒有修改遊戲設定
+- [x] 6 款遊戲已匯出匿名化 JSON 到 `local_exports/`，且沒有修改遊戲設定
 
-第 2 階段目前只剩下為 6 款已驗證遊戲各產生一份 JSON 備份；這是資料保存工作，不是 parser 驗證缺口。
+第 2 階段已完成 6 款已驗證遊戲的本機匿名化 JSON 備份。
 
 ## 3. 處理已安裝但尚未找到設定檔的遊戲
 
 - [x] Forza Horizon 6：已讀取 `UserConfigSelections` 並完成解析
 - [x] Final Fantasy XVI：已啟動並重新偵測
-- [ ] Final Fantasy XVI：目前只找到 OneDrive 內的截圖與 `steam_autocloud.vdf`，需調查實際圖形設定格式或請客戶提供原始設定資料
-- [ ] 確認其他平台路徑、雲端同步目錄或未記錄的 Wiki 路徑
+- [x] Final Fantasy XVI：已調查 OneDrive、Documents、AppData 與遊戲目錄
+- [x] Final Fantasy XVI：目前只找到截圖與 `steam_autocloud.vdf`，判定需要客戶協助提供原始設定資料
+- [x] 確認目前 Wiki 路徑與本機路徑不含可讀圖形設定檔
 - [ ] 將新找到的檔案保存為匿名化 fixture
 - [ ] 為每個新格式新增 parser 測試
 
 ## 4. 建立客戶端原始資料收集流程
 
-- [ ] 建立只讀取、不修改的客戶收集命令或 GUI
-- [ ] 讓客戶選擇遊戲與平台
-- [ ] 只讀取已知設定檔，不掃描整個磁碟
-- [ ] 匯出相對路徑、格式、遊戲版本與原始內容
-- [ ] 在客戶端先解析並顯示結果
-- [ ] 客戶確認後才產生匯出檔
-- [ ] 記錄 `parser_version` 與 `collection_time`
+- [x] 建立只讀取、不修改的客戶收集命令：`tools/collect_configs.py`
+- [x] 以 `--game`、`--platform` 與 `--game-version` 讓客戶指定遊戲資料
+- [x] 只讀取 Wiki 已知設定檔，不掃描整個磁碟
+- [x] 匯出相對路徑、格式、遊戲版本與原始內容
+- [x] 在客戶端先解析並輸出 `parsed_settings`
+- [x] 收集器預設匿名化後才產生匯出檔
+- [x] 記錄 `collector_version` 與 `collection_time`
 
 ## 5. 建立匿名化與安全檢查
 
-- [ ] 將 Windows 使用者名稱替換為 `%USERPROFILE%`
-- [ ] 遮罩或雜湊 Steam User ID
-- [ ] 移除 token、密碼、帳號識別碼與伺服器連線資訊
+- [x] 將 Windows 使用者名稱替換為 `%USERPROFILE%`
+- [x] 遮罩 Steam User ID 與 account ID
+- [x] 移除 token、密碼、帳號識別碼與敏感設定行
 - [ ] 不上傳整個 `AppData`、Steam `userdata` 或遊戲安裝目錄
 - [ ] 匯出前顯示檔案清單
 - [ ] 允許客戶取消或刪除單一檔案

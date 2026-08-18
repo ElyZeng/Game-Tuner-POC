@@ -159,6 +159,25 @@ curl -X POST http://127.0.0.1:8787/parse ^
 - `POST /export` 可選 `{"games": ["A", "B"], "output": "export.json"}`
 - `POST /import` 需要 `{"package": "export.json"}`
 
+### 匿名化客戶設定收集 / Anonymized Customer Collection
+
+收集器只讀取 PCGamingWiki 指定的設定路徑，不會修改遊戲設定。輸出預設會匿名化 Windows 使用者名稱、Steam User ID 與敏感設定內容，建議保存到已被 Git 忽略的 `local_exports/`：
+
+```powershell
+python tools/collect_configs.py --game "F1 25" --output "local_exports\f1-25-anonymous.json"
+```
+
+需要指定遊戲安裝路徑的遊戲：
+
+```powershell
+python tools/collect_configs.py `
+  --game "Street Fighter 6" `
+  --install-path "D:\SteamLibrary\steamapps\common\Street Fighter 6" `
+  --output "local_exports\street-fighter-6-anonymous.json"
+```
+
+輸出包含 `parsed_settings`、設定檔格式與收集時間；`local_exports/`、`anonymous_exports/` 與 `customer_exports/` 不會被 Git 追蹤。分享前仍應人工檢查匯出內容。
+
 ### VS Code Copilot Skill
 
 在 VS Code 中安裝 GitHub Copilot 後，可直接透過聊天使用此 Skill。  

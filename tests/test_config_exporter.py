@@ -12,6 +12,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config_manager.config_exporter import ConfigExporter, _MAX_FILE_BYTES, _try_read_file
+from config_manager.anonymizer import anonymize_package
 
 
 # ---------------------------------------------------------------------------
@@ -54,6 +55,28 @@ class TestTryReadFile:
         assert result["content"] == "setting=1\nresolution=1080p"
         assert result["truncated"] is False
         assert result["error"] is None
+
+
+class TestAnonymizer:
+    def test_anonymizes_paths_ids_and_sensitive_lines(self):
+        package = {
+            "path": r"C:\Users\Alice\AppData\Local\Steam\userdata\123456\730\cfg",
+            "config_files": [{"content": '"accountid" "123456"\npassword=secret'}],
+            "api_token": "secret-value",
+        }
+
+        result = anonymize_package(package)
+        text = json.dumps(result, ensure_ascii=False)
+
+        assert "Alice" not in text
+        assert "123456" not in text
+        assert "secret-value" not in text
+        assert result["privacy"]["anonymized"] is True
+
+    def test_preserves_non_sensitive_settings(self):
+        result = anonymize_package({"parsed_settings": {"resolution": "1920x1080"}})
+
+        assert result["parsed_settings"]["resolution"] == "1920x1080"
 
     def test_missing_file_returns_not_found(self, tmp_path):
         result = _try_read_file(str(tmp_path / "nonexistent.cfg"))
