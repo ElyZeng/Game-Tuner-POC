@@ -497,8 +497,26 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
         parts.append("DLSS FG: On")
     r[FRAME_GENERATION] = ", ".join(parts) if parts else "Off"
 
-    # Quick Preset — Forza XML has no single overall preset field
-    r[QUICK_PRESET] = "N/A"
+    # Forza has no single overall preset field. Infer Custom when the quality
+    # selections are mixed; preserve a uniform numeric level without guessing
+    # its game-specific display name.
+    quality_ids = {
+        "CarLOD", "EnvStreamingTex", "GeometryQuality", "ReflectionQuality",
+        "SSRQuality", "ShadowQuality", "ShaderQuality", "DeformableSnowQuality",
+        "ParticlesSettings", "VolumetricFogQuality", "LensEffects",
+    }
+    options = dict(re.findall(r'<option\s+id="([^"]+)"\s+value="([^"]*)"', content))
+    quality_values = {
+        options[option_id]
+        for option_id in quality_ids
+        if option_id in options
+    }
+    if len(quality_values) > 1:
+        r[QUICK_PRESET] = "Custom"
+    elif len(quality_values) == 1:
+        r[QUICK_PRESET] = f"Preset Level {next(iter(quality_values))}"
+    else:
+        r[QUICK_PRESET] = "N/A"
 
     return r
 

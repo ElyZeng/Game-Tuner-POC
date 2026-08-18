@@ -230,6 +230,31 @@ class TestF1Parser:
         assert result["quick_preset"] == "N/A"
 
 
+class TestForzaPresetInference:
+        def test_mixed_quality_options_are_custom(self):
+                from config_manager.settings_parser import extract_key_settings
+
+                content = """<UserConfig>
+    <settings>
+        <ResolutionWidth value="1920" />
+        <ResolutionHeight value="1080" />
+        <Fullscreen value="1" />
+    </settings>
+    <selections>
+        <option id="GeometryQuality" value="5" />
+        <option id="ReflectionQuality" value="4" />
+        <option id="ShadowQuality" value="4" />
+        <option id="VolumetricFogQuality" value="5" />
+    </selections>
+</UserConfig>"""
+                result = extract_key_settings(
+                        "Forza Horizon 6",
+                        [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+                )
+
+                assert result["quick_preset"] == "Custom"
+
+
 class TestGameSpecificUnrealParsers:
     def test_parse_black_myth_ui_settings(self):
         from config_manager.settings_parser import extract_key_settings

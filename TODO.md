@@ -22,7 +22,7 @@
 | Counter-Strike 2 | 3840x2160 | Borderless Windowed | Off | 400 FPS | Off | N/A | N/A |
 | Street Fighter 6 | 1680x1050 | Windowed | On | 60 FPS | Off | N/A | Custom |
 | F1 25 | 1920x1080 | Fullscreen | Off | Unlimited | Off | Off | N/A |
-| Forza Horizon 6 | 1920x1080 | Fullscreen | On | 120 FPS | Off | Off | N/A |
+| Forza Horizon 6 | 1920x1080 | Fullscreen | On | 120 FPS | Off | Off | Custom |
 
 `未解析` 表示原始設定存在但 parser 尚未支援該欄位；`N/A` 表示遊戲或格式沒有該設定項。CS2 現在會保留所有 Steam 使用者目錄，能找到有 `cs2_video.txt` 的帳號，不再依賴目前登入者。黑神話與 33 號遠征隊已完成超採樣與幀生成欄位解析；mode 數值是遊戲設定檔的原始模式編號。Cyberpunk 2077 與 Baldur's Gate 3 的舊資料仍需重新驗證後再加入此表。
 
