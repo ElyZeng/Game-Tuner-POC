@@ -43,13 +43,13 @@ python cli.py export --games "遊戲英文名稱" --output "遊戲英文名稱-c
 
 完成條件：
 
-- [x] `detect` 找到至少一個設定檔（黑神話、33 號遠征隊、CS2、SF6、F1 25）
+- [x] `detect` 找到至少一個設定檔（黑神話、33 號遠征隊、CS2、SF6、F1 25、Forza 6）
 - [x] 設定檔有 `found: true` 與 `content`
 - [x] `parse` 輸出 `resolution` 與 `screen_mode`
 - [x] `parse` 輸出 `quality_preset`、`upscaling` 或 `frame_generation`；不支援時輸出 `N/A`
 - [ ] 匯出檔已備份，且沒有修改遊戲設定
 
-第 2 階段目前只剩下為 5 款已驗證遊戲各產生一份 JSON 備份；這是資料保存工作，不是 parser 驗證缺口。
+第 2 階段目前只剩下為 6 款已驗證遊戲各產生一份 JSON 備份；這是資料保存工作，不是 parser 驗證缺口。
 
 ## 3. 處理已安裝但尚未找到設定檔的遊戲
 
