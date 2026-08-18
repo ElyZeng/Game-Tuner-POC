@@ -182,7 +182,9 @@ def _parse_cyberpunk(content: str) -> Dict[str, Optional[str]]:
     # Screen Mode
     wm = options_map.get("WindowMode") or options_map.get("/video/display/WindowMode")
     if wm:
-        r[SCREEN_MODE] = str(wm.get("value", ""))
+        mode = wm.get("value", "")
+        mode_map = {0: "Fullscreen", 1: "Borderless Windowed", 2: "Windowed"}
+        r[SCREEN_MODE] = mode_map.get(mode, str(mode))
 
     # VSync
     vs = options_map.get("VSync") or options_map.get("/video/display/VSync")

@@ -112,6 +112,53 @@ python cli.py import backup.json
 
 所有 CLI 指令輸出為 JSON 格式 / All CLI commands output JSON format.
 
+### 外部 API 介面 / External API Interface
+
+如果你不在 VS Code，也可以直接用 HTTP 呼叫同一套能力。  
+If you are outside VS Code, you can call the same capabilities over HTTP.
+
+啟動 API 伺服器 / Start API server:
+
+```bash
+python external_api.py --host 127.0.0.1 --port 8787
+```
+
+健康檢查 / Health check:
+
+```bash
+curl http://127.0.0.1:8787/health
+```
+
+掃描遊戲 / Scan games:
+
+```bash
+curl http://127.0.0.1:8787/scan
+curl "http://127.0.0.1:8787/scan?platform=steam"
+```
+
+查詢與解析（POST JSON）/ Query and parse (POST JSON):
+
+```bash
+curl -X POST http://127.0.0.1:8787/query ^
+  -H "Content-Type: application/json" ^
+  -d "{\"game\":\"Cyberpunk 2077\"}"
+
+curl -X POST http://127.0.0.1:8787/parse ^
+  -H "Content-Type: application/json" ^
+  -d "{\"game\":\"Cyberpunk 2077\"}"
+```
+
+可用端點 / Available endpoints:
+
+- `GET /health`
+- `GET /scan?platform=steam|epic|gog`
+- `POST /query` 需要 `{"game": "...", "install_path": "..."}`
+- `POST /detect` 需要 `{"game": "...", "install_path": "..."}`
+- `POST /parse` 需要 `{"game": "..."}`，可選 `config_files`
+- `POST /apply` 需要 `{"game": "...", "settings": {...}}`
+- `POST /export` 可選 `{"games": ["A", "B"], "output": "export.json"}`
+- `POST /import` 需要 `{"package": "export.json"}`
+
 ### VS Code Copilot Skill
 
 在 VS Code 中安裝 GitHub Copilot 後，可直接透過聊天使用此 Skill。  

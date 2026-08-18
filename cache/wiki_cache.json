@@ -164,16 +164,6 @@
     "expanded_paths": [],
     "source": "mediawiki"
   },
-  "Apex Legends": {
-    "page_title": "Apex Legends",
-    "raw_paths": [
-      "{{P|userprofile}}\\\\Saved Games\\\\Respawn\\\\Apex\\\\local\\\\settings.cfg",
-      "{{P|userprofile}}\\\\Saved Games\\\\Respawn\\\\Apex\\\\local\\\\videoconfig.txt",
-      "{{P|userprofile}}\\\\Saved Games\\\\Respawn\\\\Apex\\\\profile\\\\profile.cfg"
-    ],
-    "expanded_paths": [],
-    "source": "mediawiki"
-  },
   "Baldur's Gate 3": {
     "page_title": "Baldur's Gate 3",
     "raw_paths": [

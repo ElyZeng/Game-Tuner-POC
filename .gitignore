@@ -9,3 +9,7 @@ build/
 .vscode/
 *.spec
 .venv/
+AGB_manifest.json
+*.manifest.json
+detected_*.json
+tmp_*.json

@@ -134,6 +134,40 @@ class TestConfigExporterNoWiki:
             data = json.load(f)
         assert set(data["games"].keys()) == {"GameA", "GameB"}
 
+    def test_export_includes_parsed_settings(self, tmp_path):
+        cfg_file = tmp_path / "UserSettings.json"
+        cfg_file.write_text(json.dumps({
+            "data": [{
+                "group_name": "/video/display",
+                "options": [
+                    {"name": "Resolution", "value": "1920x1080"},
+                    {"name": "WindowMode", "value": 0},
+                    {"name": "VSync", "value": "UI-Settings-Video-QualitySetting-Off"},
+                    {"name": "MaximumFPS_OnOff", "value": True},
+                    {"name": "MaximumFPS", "value": 120},
+                    {"name": "DynamicResolutionScaling", "value": False},
+                    {"name": "ResolutionScaling", "value": "DLSS"},
+                    {"name": "FrameGeneration", "value": False},
+                ],
+            }],
+        }), encoding="utf-8")
+
+        mock_wiki = _make_wiki_mock(
+            raw_paths=[r"%USERPROFILE%\Saved Games\Cyberpunk 2077\UserSettings.json"],
+            expanded_paths=[str(cfg_file)],
+        )
+        exporter = ConfigExporter(wiki_client=mock_wiki)
+        output = str(tmp_path / "out.json")
+        exporter.export([_FakeGame("Cyberpunk 2077")], output)
+
+        with open(output, encoding="utf-8") as f:
+            data = json.load(f)
+
+        settings = data["games"]["Cyberpunk 2077"]["parsed_settings"]
+        assert settings["resolution"] == "1920x1080"
+        assert settings["screen_mode"] == "Fullscreen"
+        assert settings["vsync"] == "Off"
+
     def test_export_creates_parent_dirs(self, tmp_path):
         exporter = ConfigExporter(wiki_client=None)
         output = str(tmp_path / "nested" / "dir" / "out.json")

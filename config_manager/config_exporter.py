@@ -11,6 +11,8 @@ import os
 import platform
 from typing import Any, Dict, List, Optional
 
+from .settings_parser import extract_key_settings
+
 if platform.system() == "Windows":
     import winreg
 else:
@@ -363,10 +365,12 @@ class ConfigExporter:
             "platform": getattr(game, "platform", ""),
             "pcgamingwiki": None,
             "config_files": [],
+            "parsed_settings": {},
         }
 
+        game_name = getattr(game, "name", str(game))
+
         if self._wiki is not None:
-            game_name = getattr(game, "name", str(game))
             wiki_result = self._query_wiki(game_name)
             info["pcgamingwiki"] = wiki_result
             expanded_paths: List[str] = wiki_result.get("expanded_paths") or []
@@ -381,6 +385,13 @@ class ConfigExporter:
                 else:
                     config_files.append(_try_read_file(path))
             info["config_files"] = config_files
+
+        readable = [c for c in info["config_files"] if c.get("content") and c.get("found")]
+        if readable:
+            try:
+                info["parsed_settings"] = extract_key_settings(game_name, readable)
+            except Exception:
+                info["parsed_settings"] = {}
 
         return info
 

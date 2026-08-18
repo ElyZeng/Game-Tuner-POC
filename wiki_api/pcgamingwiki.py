@@ -529,9 +529,15 @@ class PCGamingWikiClient:
             result["error"] = "requests library not available"
             return result
         try:
-            raw, expanded = self._query_cargo_raw(game_title, install_path=install_path)
+            if install_path:
+                raw, expanded = self._query_cargo_raw(game_title, install_path=install_path)
+            else:
+                raw, expanded = self._query_cargo_raw(game_title)
             if not raw:
-                raw, expanded = self._query_mediawiki_raw(game_title, install_path=install_path)
+                if install_path:
+                    raw, expanded = self._query_mediawiki_raw(game_title, install_path=install_path)
+                else:
+                    raw, expanded = self._query_mediawiki_raw(game_title)
             if not raw:
                 raw, expanded = self._scrape_wiki_page_raw(game_title, install_path=install_path)
             # Retry with cleaned title (strip ™®© etc.) if no results found
