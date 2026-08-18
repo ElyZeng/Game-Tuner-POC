@@ -7,7 +7,7 @@
 - [x] 使用 `D:\AI\.venv` 執行專案
 - [x] 安裝 `requirements.txt` 中的執行依賴
 - [x] 安裝 `pytest`
-- [x] 通過完整測試：`122 passed`
+- [x] 通過完整測試：`123 passed`
 - [x] 通過依賴檢查：`python -m pip check`
 - [x] 通過 Python 語法檢查：`python -m compileall`
 
@@ -39,7 +39,8 @@ python cli.py export --games "遊戲英文名稱" --output "遊戲英文名稱-c
 ## 3. 處理已安裝但尚未找到設定檔的遊戲
 
 - [ ] Forza Horizon 6：啟動並儲存畫面設定後重新偵測
-- [ ] Final Fantasy XVI：啟動並儲存畫面設定後重新偵測
+- [x] Final Fantasy XVI：已啟動並重新偵測
+- [ ] Final Fantasy XVI：目前只找到 OneDrive 內的截圖與 `steam_autocloud.vdf`，需調查實際圖形設定格式或請客戶提供原始設定資料
 - [ ] 確認其他平台路徑、雲端同步目錄或未記錄的 Wiki 路徑
 - [ ] 將新找到的檔案保存為匿名化 fixture
 - [ ] 為每個新格式新增 parser 測試
