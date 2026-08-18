@@ -78,6 +78,7 @@ python cli.py export --games "遊戲英文名稱" --output "遊戲英文名稱-c
 - [ ] 匯出前顯示檔案清單
 - [ ] 允許客戶取消或刪除單一檔案
 - [ ] 在 README 說明資料用途
+- [x] 本機匿名化匯出放在 `local_exports/`，並由 `.gitignore` 排除
 
 ## 6. 向客戶收集尚未安裝的遊戲
 

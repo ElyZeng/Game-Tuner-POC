@@ -13,3 +13,10 @@ AGB_manifest.json
 *.manifest.json
 detected_*.json
 tmp_*.json
+
+# Local/customer configuration exports. Keep anonymized data off Git.
+local_exports/
+anonymous_exports/
+customer_exports/
+*_anonymous.json
+*_customer_export.json
