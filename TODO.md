@@ -16,7 +16,7 @@
 - [ ] 黑神話：悟空：解析度、全螢幕、畫質預設、超採樣、幀生成
 - [ ] 光與影：33 號遠征隊：讀取 `GameUserSettings.ini`
 - [ ] Counter-Strike 2：讀取 `cs2_video.txt` 與 ConVar 設定
-- [ ] Street Fighter 6：啟動並儲存一次畫面設定後重新偵測
+- [x] Street Fighter 6：已讀取 `config.ini` 並完成專用 parser
 - [ ] F1 25：啟動並儲存一次畫面設定後重新偵測
 
 每款遊戲執行：

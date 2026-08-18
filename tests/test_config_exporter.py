@@ -176,6 +176,34 @@ class TestConfigExporterNoWiki:
         assert os.path.isfile(output)
 
 
+class TestStreetFighterParser:
+    def test_parse_config_ini(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """[Render]
+GlobalSettings=Custom
+MaxFramerate=60
+[RenderConfig]
+FullScreenDisplayMode=154
+WindowMode=Normal
+VSync=True
+UpscaleType=None
+FullScreenMode=false
+DisplayMode154_Width=1680
+DisplayMode154_Height=1050
+"""
+        result = extract_key_settings(
+            "Street Fighter 6",
+            [{"found": True, "content": content, "expanded_path": "config.ini"}],
+        )
+
+        assert result["resolution"] == "1680x1050"
+        assert result["screen_mode"] == "Windowed"
+        assert result["quick_preset"] == "Custom"
+        assert result["upscaling"] == "Off"
+        assert result["frame_generation"] == "N/A"
+
+
 class TestConfigExporterWithWiki:
     def test_export_pcgamingwiki_section_populated(self, tmp_path):
         mock_wiki = _make_wiki_mock(

@@ -318,6 +318,54 @@ def _parse_unreal_ini(content: str) -> Dict[str, Optional[str]]:
     return r
 
 
+# ── Street Fighter 6 config.ini ─────────────────────────────────────
+
+def _parse_sf6(content: str) -> Dict[str, Optional[str]]:
+    r = _empty_result()
+    kv = _parse_ini_kv(content)
+
+    # SF6 stores the selected display mode as an index into DisplayModeN_*.
+    display_mode = kv.get("FullScreenDisplayMode")
+    if display_mode is not None:
+        width = kv.get(f"DisplayMode{display_mode}_Width")
+        height = kv.get(f"DisplayMode{display_mode}_Height")
+        if width and height:
+            r[RESOLUTION] = f"{width}x{height}"
+
+    fullscreen = kv.get("FullScreenMode", "").lower()
+    window_mode = kv.get("WindowMode", "").lower()
+    if fullscreen in {"true", "1", "yes"}:
+        r[SCREEN_MODE] = "Fullscreen"
+    elif window_mode in {"borderless", "borderlesswindow", "borderless_window"}:
+        r[SCREEN_MODE] = "Borderless Windowed"
+    elif fullscreen or window_mode:
+        r[SCREEN_MODE] = "Windowed"
+
+    vsync = kv.get("VSync")
+    if vsync is not None:
+        r[VSYNC] = "On" if vsync.lower() in {"true", "1", "yes"} else "Off"
+
+    max_framerate = kv.get("MaxFramerate")
+    if max_framerate is not None:
+        try:
+            value = float(max_framerate)
+            r[FRAME_LIMIT] = "Unlimited" if value <= 0 else f"{value:.0f} FPS"
+        except ValueError:
+            r[FRAME_LIMIT] = max_framerate
+
+    preset = kv.get("GlobalSettings")
+    if preset:
+        r[QUICK_PRESET] = preset.replace("_", " ").title()
+
+    upscale = kv.get("UpscaleType")
+    if upscale is not None:
+        r[UPSCALING] = "Off" if upscale.lower() in {"none", "off", "0"} else upscale
+
+    # This config has no explicit frame-generation switch.
+    r[FRAME_GENERATION] = "N/A"
+    return r
+
+
 # ── Forza Horizon XML (UserConfigSelections) ─────────────────────────
 
 def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
@@ -575,6 +623,9 @@ def extract_key_settings(
 
     if "cyberpunk" in name_lower:
         return _parse_cyberpunk(readable[0]["content"])
+
+    if "street fighter" in name_lower or "streetfighter" in name_lower:
+        return _parse_sf6(readable[0]["content"])
 
     if "counter-strike" in name_lower or "cs2" in name_lower:
         return _parse_cs2(readable)
