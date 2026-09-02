@@ -43,7 +43,9 @@ Check the following manually:
 2. `Check Rules` can be skipped without preventing the application from opening.
 3. `Enable Test Writes` shows a confirmation. Select No and verify it stays disabled.
 4. Select any detected game and use `Export Diagnostics`. Choose No when asked to
-   include content. Confirm the generated ZIP is stored below
+   include content. In the file selection window, confirm private-looking files
+   such as input, key, binding, save, log, cache, and empty files are not selected
+   by default. Confirm the generated ZIP is stored below
    `%LOCALAPPDATA%\GameTuner\reports`.
 
 For a game in a `write_verified` Release rule, repeat step 3 and select Yes. A

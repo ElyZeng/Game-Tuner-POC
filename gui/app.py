@@ -21,7 +21,7 @@ from scanner import SteamScanner, EpicScanner, GOGScanner
 from wiki_api import PCGamingWikiClient
 from config_manager import (
     ConfigPackage, ConfigExporter, VerificationError, VerificationRegistry,
-    app_data_dir, backup_and_write, detect_config_files, detect_game_version,
+    app_data_dir, backup_and_write, build_preview, detect_config_files, detect_game_version,
     export_diagnostic_package, structural_fingerprint,
 )
 from main import __version__
@@ -798,10 +798,6 @@ class App:
         if not selected:
             messagebox.showwarning("No Games Selected", "Select one or more games for diagnostics.")
             return
-        include_content = messagebox.askyesno(
-            "Include Config Content",
-            "Include anonymized configuration text? Choose No to export metadata and parsed settings only.",
-        )
         report_games = [{
             "name": row.game_name,
             "platform": row.platform,
@@ -809,17 +805,118 @@ class App:
             "config_files": row._config_dicts,
             "parsed_settings": row._key_settings or {},
         } for row in selected]
-        try:
-            output = export_diagnostic_package(
-                report_games, app_data_dir() / "reports", include_content=include_content,
+        self._open_diagnostic_export_window(report_games)
+
+    def _open_diagnostic_export_window(self, report_games: List[Dict[str, Any]]) -> None:
+        preview = build_preview(report_games, include_content=False)
+        window = ctk.CTkToplevel(self.root)
+        window.title("Export Diagnostics")
+        window.geometry("820x620")
+        window.transient(self.root)
+        window.grab_set()
+
+        header = ctk.CTkFrame(window, fg_color="transparent")
+        header.pack(fill="x", padx=12, pady=(12, 6))
+        ctk.CTkLabel(
+            header,
+            text="Select diagnostic files",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).pack(anchor="w")
+        ctk.CTkLabel(
+            header,
+            text="Private-looking files and empty files are excluded by default. You can still choose them manually.",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        ).pack(anchor="w", pady=(2, 0))
+
+        include_content_var = ctk.BooleanVar(value=False)
+        ctk.CTkCheckBox(
+            header,
+            text="Include anonymized config content",
+            variable=include_content_var,
+        ).pack(anchor="w", pady=(8, 0))
+
+        list_frame = ctk.CTkScrollableFrame(window, label_text="Candidate Files")
+        list_frame.pack(fill="both", expand=True, padx=12, pady=6)
+
+        file_vars: Dict[str, Any] = {}
+        defaults: Dict[str, bool] = {}
+        for game_info in preview["games"]:
+            ctk.CTkLabel(
+                list_frame,
+                text=f"{game_info['name']} [{game_info['platform']}]",
+                font=ctk.CTkFont(size=13, weight="bold"),
+            ).pack(anchor="w", padx=6, pady=(8, 2))
+            files = game_info.get("files", [])
+            if not files:
+                ctk.CTkLabel(list_frame, text="No readable candidate files.", text_color="gray").pack(anchor="w", padx=18)
+                continue
+            for file_info in files:
+                file_id = file_info["id"]
+                defaults[file_id] = bool(file_info["default_selected"])
+                var = ctk.BooleanVar(value=defaults[file_id])
+                file_vars[file_id] = var
+                row = ctk.CTkFrame(list_frame, corner_radius=6)
+                row.pack(fill="x", padx=6, pady=3)
+                basename = os.path.basename(str(file_info["path"])) or str(file_info["path"])
+                ctk.CTkCheckBox(
+                    row,
+                    text=f"{basename} ({file_info['size_bytes']} bytes)",
+                    variable=var,
+                ).pack(anchor="w", padx=8, pady=(6, 0))
+                ctk.CTkLabel(
+                    row,
+                    text=f"{file_info['selection_reason']}  •  {file_info['path']}",
+                    font=ctk.CTkFont(size=10),
+                    text_color="gray",
+                    wraplength=740,
+                    justify="left",
+                ).pack(anchor="w", padx=28, pady=(0, 6))
+
+        actions = ctk.CTkFrame(window, fg_color="transparent")
+        actions.pack(fill="x", padx=12, pady=(4, 12))
+
+        def _set_all(value: bool) -> None:
+            for var in file_vars.values():
+                var.set(value)
+
+        def _set_recommended() -> None:
+            for file_id, var in file_vars.items():
+                var.set(defaults[file_id])
+
+        def _create() -> None:
+            selected_ids = [file_id for file_id, var in file_vars.items() if var.get()]
+            include_content = bool(include_content_var.get())
+            selected_preview = build_preview(report_games, include_content, selected_ids)
+            selected_count = sum(1 for game in selected_preview["games"] for item in game["files"] if item["included"])
+            if include_content and not messagebox.askyesno(
+                "Confirm Content Export",
+                f"Create a diagnostic ZIP with anonymized content from {selected_count} file(s)?\n\n"
+                "Only share the ZIP through your approved private channel.",
+                parent=window,
+            ):
+                return
+            try:
+                output = export_diagnostic_package(
+                    report_games,
+                    app_data_dir() / "reports",
+                    include_content=include_content,
+                    selected_file_ids=selected_ids,
+                )
+            except (OSError, ValueError) as exc:
+                messagebox.showerror("Diagnostic Export Failed", str(exc), parent=window)
+                return
+            window.destroy()
+            messagebox.showinfo(
+                "Diagnostics Exported",
+                f"Created report for {len(report_games)} game(s).\n\n{output.parent}\n\nShare it only through your approved private channel.",
             )
-        except (OSError, ValueError) as exc:
-            messagebox.showerror("Diagnostic Export Failed", str(exc))
-            return
-        messagebox.showinfo(
-            "Diagnostics Exported",
-            f"Created {len(selected)} game(s) report.\n\n{output.parent}\n\nShare it only through your approved private channel.",
-        )
+
+        ctk.CTkButton(actions, text="Select All", width=95, fg_color="gray30", command=lambda: _set_all(True)).pack(side="left", padx=4)
+        ctk.CTkButton(actions, text="Select None", width=95, fg_color="gray30", command=lambda: _set_all(False)).pack(side="left", padx=4)
+        ctk.CTkButton(actions, text="Recommended", width=120, fg_color="gray30", command=_set_recommended).pack(side="left", padx=4)
+        ctk.CTkButton(actions, text="Cancel", width=95, fg_color="gray30", command=window.destroy).pack(side="right", padx=4)
+        ctk.CTkButton(actions, text="Create ZIP", width=120, command=_create).pack(side="right", padx=4)
 
     def _export_selected(self) -> None:
         selected = [row for row in self._game_rows if row.selected]

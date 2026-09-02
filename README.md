@@ -129,6 +129,8 @@ python cli.py diagnostic-export --games "Counter-Strike 2,Street Fighter 6"
 python cli.py diagnostic-export --games "Counter-Strike 2" --include-content
 ```
 
+GUI 的 **Export Diagnostics** 會先開啟逐檔選取視窗。`input`、`key`、`binding`、`save`、`log`、`cache` 與空檔會預設排除；使用者仍可手動調整、全選、全不選或恢復推薦選取。若要包含匿名化設定內容，建立 ZIP 前會再次確認。
+
 寫入設定同時需要 `write_verified` 規則與客戶明確同意測試功能。GUI 中必須按下 **Enable Test Writes** 並確認警告；CLI 則必須在第一次寫入時加入 `--confirm-test-write`：
 
 ```bash
