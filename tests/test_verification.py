@@ -6,6 +6,7 @@ import json
 import pytest
 
 from config_manager.verification import (
+    builtin_manifest,
     VerificationError,
     VerificationRegistry,
     backup_and_write,
@@ -80,3 +81,41 @@ def test_release_update_installs_manifest_and_keeps_previous(tmp_path):
 
     assert registry.update()["updated"] is True
     assert registry.load()["manifest_version"] == "1.0.0"
+
+
+def test_empty_remote_manifest_preserves_builtin_rules(tmp_path):
+    registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    registry.current_path.write_text(json.dumps({
+        "format_version": 1,
+        "manifest_version": "1.0.0",
+        "minimum_client_version": "0.05.1",
+        "games": [],
+    }), encoding="utf-8")
+
+    loaded = registry.load()
+
+    assert loaded["manifest_version"] == "1.0.0"
+    assert len(loaded["games"]) == len(builtin_manifest("0.05.1")["games"])
+    assert registry.status_for("Counter-Strike 2", "Steam", "unknown", "anything")["status"] == "read_verified"
+
+
+def test_remote_rule_overrides_builtin_rule(tmp_path):
+    registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    registry.current_path.write_text(json.dumps({
+        "format_version": 1,
+        "manifest_version": "1.0.0",
+        "minimum_client_version": "0.05.1",
+        "games": [{
+            "game": "Counter-Strike 2",
+            "platform": "*",
+            "version": "unknown",
+            "fingerprint": "*",
+            "status": "deprecated",
+            "config_patterns": [],
+            "supported_settings": [],
+            "reader_id": "existing-parser",
+            "writer_id": None,
+        }],
+    }), encoding="utf-8")
+
+    assert registry.status_for("Counter-Strike 2", "Steam", "unknown", "anything")["status"] == "deprecated"

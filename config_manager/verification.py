@@ -116,6 +116,20 @@ def validate_manifest(manifest: Dict[str, Any], client_version: str) -> None:
             raise VerificationError("invalid_manifest_rule")
 
 
+def merge_with_builtin(manifest: Dict[str, Any], client_version: str) -> Dict[str, Any]:
+    """Merge downloaded rules over the conservative built-in baseline."""
+    baseline = builtin_manifest(client_version)
+    merged = dict(manifest)
+    rules_by_key = {
+        (_normalise_title(rule["game"]), rule["platform"].lower()): rule
+        for rule in baseline["games"]
+    }
+    for rule in manifest.get("games", []):
+        rules_by_key[(_normalise_title(rule["game"]), rule["platform"].lower())] = rule
+    merged["games"] = list(rules_by_key.values())
+    return merged
+
+
 class VerificationRegistry:
     """Load, update, and evaluate release-published verification rules."""
 
@@ -160,7 +174,7 @@ class VerificationRegistry:
                 with path.open(encoding="utf-8") as handle:
                     manifest = json.load(handle)
                 validate_manifest(manifest, self.client_version)
-                return manifest
+                return merge_with_builtin(manifest, self.client_version)
             except (OSError, ValueError, VerificationError):
                 continue
         return builtin_manifest(self.client_version)
