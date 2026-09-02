@@ -132,6 +132,27 @@ class VerificationRegistry:
         self.http_get = http_get
         self.current_path = self.data_dir / "verified-games.json"
         self.previous_path = self.data_dir / "verified-games.previous.json"
+        self.test_write_consent_path = self.data_dir / "test-write-consent.json"
+
+    def test_write_enabled(self) -> bool:
+        """Return whether this user explicitly enabled experimental writes."""
+        try:
+            with self.test_write_consent_path.open(encoding="utf-8") as handle:
+                return bool(json.load(handle).get("enabled"))
+        except (OSError, ValueError):
+            return False
+
+    def enable_test_writes(self) -> None:
+        """Persist the user's explicit acknowledgement of experimental writes."""
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.test_write_consent_path.write_text(
+            json.dumps({"enabled": True, "acknowledged_at": datetime.now(timezone.utc).isoformat()}),
+            encoding="utf-8",
+        )
+
+    def disable_test_writes(self) -> None:
+        """Disable experimental writes without deleting verification data."""
+        self.test_write_consent_path.unlink(missing_ok=True)
 
     def load(self) -> Dict[str, Any]:
         for path in (self.current_path, self.previous_path):
@@ -218,6 +239,8 @@ def backup_and_write(
     registry: VerificationRegistry,
 ) -> List[Dict[str, Any]]:
     """Write only verified configs, restoring the backup if validation fails."""
+    if not registry.test_write_enabled():
+        raise VerificationError("test_write_consent_required")
     fingerprint = structural_fingerprint(config_files)
     verification = registry.status_for(game, platform, game_version, fingerprint)
     if verification["status"] != "write_verified":

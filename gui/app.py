@@ -400,6 +400,8 @@ class App:
         self._verification_registry = VerificationRegistry(__version__)
 
         self._build_ui()
+        if self._verification_registry.test_write_enabled():
+            self._test_write_btn.configure(text="Disable Test Writes")
         self._scan_games()
 
     # ------------------------------------------------------------------
@@ -425,6 +427,11 @@ class App:
             command=self._scan_games,
         )
         self._scan_btn.pack(side="right", padx=8, pady=10)
+
+        self._test_write_btn = ctk.CTkButton(
+            top_bar, text="Enable Test Writes", width=140, command=self._enable_test_writes,
+        )
+        self._test_write_btn.pack(side="right", padx=4, pady=10)
 
         self._rules_btn = ctk.CTkButton(
             top_bar, text="Check Rules", width=105, command=self._offer_rule_update,
@@ -754,6 +761,23 @@ class App:
             write_settings,
             self._verification_registry,
         )
+
+    def _enable_test_writes(self) -> None:
+        if self._verification_registry.test_write_enabled():
+            self._verification_registry.disable_test_writes()
+            self._test_write_btn.configure(text="Enable Test Writes")
+            messagebox.showinfo("Test Writes", "Experimental write mode is disabled.")
+            return
+        if not messagebox.askyesno(
+            "Enable Test Writes",
+            "This is an experimental feature that changes game configuration files. "
+            "Only verified games can be changed. A backup is created before every write, "
+            "and failed validation restores it. Enable test writes?",
+        ):
+            return
+        self._verification_registry.enable_test_writes()
+        self._test_write_btn.configure(text="Disable Test Writes")
+        messagebox.showinfo("Test Writes", "Experimental write mode is enabled for this Windows user.")
 
     def _offer_rule_update(self) -> None:
         if not messagebox.askyesno(

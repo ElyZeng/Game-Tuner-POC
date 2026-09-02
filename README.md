@@ -129,6 +129,12 @@ python cli.py diagnostic-export --games "Counter-Strike 2,Street Fighter 6"
 python cli.py diagnostic-export --games "Counter-Strike 2" --include-content
 ```
 
+寫入設定同時需要 `write_verified` 規則與客戶明確同意測試功能。GUI 中必須按下 **Enable Test Writes** 並確認警告；CLI 則必須在第一次寫入時加入 `--confirm-test-write`：
+
+```bash
+python cli.py apply "Counter-Strike 2" --settings '{"vsync": "Off"}' --confirm-test-write
+```
+
 本機驗證名單、備份與匯出摘要保存於 `%LOCALAPPDATA%\GameTuner\`。資料包採隨機 ID 命名，沒有自動上傳功能；僅透過核准的私下管道交付。
 
 維護者收到資料包後，可先建立本機待審核候選項目；人工審核規則後，再產生要上傳到 GitHub Release 的資產：
@@ -139,6 +145,8 @@ python tools/manage_verification.py build-release reviewed-rules.json --output-d
 ```
 
 將 `release-assets/verified-games.json` 及 `release-assets/verified-games.json.sha256` 以同一個 Release 上傳至 `ElyZeng/Game-Tuner-POC`。
+
+乾淨 Windows 環境的完整測試流程請見 [docs/clean-environment-test.md](docs/clean-environment-test.md)。
 
 ### 外部 API 介面 / External API Interface
 

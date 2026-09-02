@@ -28,11 +28,29 @@ class _Response:
 
 def test_unknown_game_is_not_allowed_to_write(tmp_path):
     registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    registry.enable_test_writes()
     with pytest.raises(VerificationError, match="write_not_allowed:game_not_listed"):
         backup_and_write(
             "Unknown Game", "Steam", "1.0", [], {"vsync": "On"},
             lambda *_: [], registry,
         )
+
+
+def test_verified_game_still_requires_test_write_consent(tmp_path):
+    registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    fingerprint = structural_fingerprint([])
+    registry.current_path.write_text(json.dumps({
+        "format_version": 1,
+        "manifest_version": "1.0.0",
+        "minimum_client_version": "0.05.1",
+        "games": [{
+            "game": "Example", "platform": "Steam", "version": "1.0", "fingerprint": fingerprint,
+            "status": "write_verified", "config_patterns": [], "supported_settings": [],
+            "reader_id": "existing-parser", "writer_id": "existing-writer",
+        }],
+    }), encoding="utf-8")
+    with pytest.raises(VerificationError, match="test_write_consent_required"):
+        backup_and_write("Example", "Steam", "1.0", [], {"vsync": "On"}, lambda *_: [], registry)
 
 
 def test_structural_fingerprint_ignores_setting_values():

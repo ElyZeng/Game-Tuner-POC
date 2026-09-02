@@ -18,6 +18,7 @@ tmp_*.json
 local_exports/
 anonymous_exports/
 customer_exports/
+GameTunerTestOutput/
 *_anonymous.json
 *_customer_export.json
 

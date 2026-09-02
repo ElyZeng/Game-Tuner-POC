@@ -144,9 +144,12 @@ def cmd_apply(args):
 
     games = _scan_all()
     matched = next((game for game in games if game.get("name", "").lower() == args.game.lower()), {})
+    registry = VerificationRegistry(__version__)
+    if args.confirm_test_write:
+        registry.enable_test_writes()
     results = backup_and_write(
         args.game, matched.get("platform", "Unknown"), detect_game_version(matched.get("install_path", "")),
-        config_files, settings, write_settings, VerificationRegistry(__version__),
+        config_files, settings, write_settings, registry,
     )
     _json_out(results)
 
@@ -276,6 +279,10 @@ def build_parser():
                    help='JSON string of settings, e.g. \'{"vsync": "Off", "frame_limit": "120"}\'')
     s.add_argument("--install-path", help="Game install path (optional)")
     s.add_argument("--config-json", help="Path to a JSON file with config file data (skip auto-detect)")
+    s.add_argument(
+        "--confirm-test-write", action="store_true",
+        help="Acknowledge and enable experimental write mode for this Windows user",
+    )
     s.set_defaults(func=cmd_apply)
 
     # verification
