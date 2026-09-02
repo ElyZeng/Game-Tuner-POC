@@ -38,7 +38,10 @@ def _anonymize_text(value: str) -> str:
             lines.append("<REDACTED_SENSITIVE_SETTING>")
         else:
             lines.append(line)
-    return "\n".join(lines)
+    result = "\n".join(lines)
+    if value.endswith("\n"):
+        result += "\n"
+    return result
 
 
 def anonymize_value(value: Any, key: str = "") -> Any:

@@ -112,6 +112,34 @@ python cli.py import backup.json
 
 所有 CLI 指令輸出為 JSON 格式 / All CLI commands output JSON format.
 
+### 驗證名單與診斷資料 / Verification Rules and Diagnostics
+
+遊戲只有在 GitHub Release 驗證名單中標為 `write_verified` 時才能寫入設定。
+未知、版本不符或設定格式不符的遊戲維持唯讀，可建立匿名診斷資料包。
+
+```bash
+# 查看遊戲是否可讀取或可安全寫入
+python cli.py verification-status "Counter-Strike 2"
+
+# 下載並驗證最新 GitHub Release 名單
+python cli.py update-verification
+
+# 匯出已選遊戲的匿名診斷 ZIP；設定內容預設不會包含
+python cli.py diagnostic-export --games "Counter-Strike 2,Street Fighter 6"
+python cli.py diagnostic-export --games "Counter-Strike 2" --include-content
+```
+
+本機驗證名單、備份與匯出摘要保存於 `%LOCALAPPDATA%\GameTuner\`。資料包採隨機 ID 命名，沒有自動上傳功能；僅透過核准的私下管道交付。
+
+維護者收到資料包後，可先建立本機待審核候選項目；人工審核規則後，再產生要上傳到 GitHub Release 的資產：
+
+```bash
+python tools/manage_verification.py candidate game-tuner-report-<id>.zip --output candidate.json
+python tools/manage_verification.py build-release reviewed-rules.json --output-dir release-assets --version 1.0.0 --minimum-client-version 0.05.1
+```
+
+將 `release-assets/verified-games.json` 及 `release-assets/verified-games.json.sha256` 以同一個 Release 上傳至 `ElyZeng/Game-Tuner-POC`。
+
 ### 外部 API 介面 / External API Interface
 
 如果你不在 VS Code，也可以直接用 HTTP 呼叫同一套能力。  

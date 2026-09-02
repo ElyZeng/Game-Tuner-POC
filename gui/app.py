@@ -19,7 +19,12 @@ except ImportError:  # pragma: no cover
 
 from scanner import SteamScanner, EpicScanner, GOGScanner
 from wiki_api import PCGamingWikiClient
-from config_manager import ConfigPackage, ConfigExporter, detect_config_files
+from config_manager import (
+    ConfigPackage, ConfigExporter, VerificationError, VerificationRegistry,
+    app_data_dir, backup_and_write, detect_config_files, detect_game_version,
+    export_diagnostic_package, structural_fingerprint,
+)
+from main import __version__
 from config_manager.config_exporter import (
     _try_read_file,
     _read_registry_key,
@@ -69,6 +74,7 @@ class GameRow:
         platform: str,
         install_path: str = "",
         config_files: Optional[List[str]] = None,
+        write_callback: Any = None,
     ) -> None:
         self.game_name = game_name
         self.platform = platform
@@ -77,6 +83,8 @@ class GameRow:
         self._key_settings: Optional[Dict[str, Optional[str]]] = None
         self._config_dicts: List[Dict[str, Any]] = []  # raw config file data for write-back
         self._setting_vars: Dict[str, ctk.StringVar] = {}  # dropdown variables
+        self._write_callback = write_callback
+        self.verification: Dict[str, Any] = {"status": "candidate", "reason": "not_checked"}
 
         self.var = ctk.BooleanVar(value=False)
 
@@ -287,7 +295,13 @@ class GameRow:
             )
             return
 
-        result = write_settings(self.game_name, self._config_dicts, changes)
+        try:
+            result = self._write_callback(self, changes) if self._write_callback else write_settings(
+                self.game_name, self._config_dicts, changes
+            )
+        except VerificationError as exc:
+            messagebox.showwarning("Write Disabled", str(exc))
+            return
         ok_count = sum(1 for r in result if r["status"] == "ok")
         errors = [r for r in result if r["status"] == "error"]
 
@@ -317,6 +331,18 @@ class GameRow:
                 f"No config files were modified for {self.game_name}.\n"
                 "The game's config format may not be supported for writing yet.",
             )
+
+    def update_verification(self, verification: Dict[str, Any]) -> None:
+        """Show policy state and disable writes unless explicitly verified."""
+        self.verification = verification
+        status = verification.get("status", "candidate")
+        reason = verification.get("reason", "")
+        if hasattr(self, "_apply_btn"):
+            self._apply_btn.configure(state="normal" if status == "write_verified" else "disabled")
+        self._config_label.configure(
+            text=f"{status}: {reason}",
+            text_color="#48bb78" if status == "write_verified" else "#d4a017",
+        )
 
     def update_config_status(self, config_files: Any) -> None:
         """Update the config file status label.
@@ -371,6 +397,7 @@ class App:
         self._game_rows: List[GameRow] = []
         self._wiki_client = PCGamingWikiClient()
         self._package = ConfigPackage()
+        self._verification_registry = VerificationRegistry(__version__)
 
         self._build_ui()
         self._scan_games()
@@ -398,6 +425,11 @@ class App:
             command=self._scan_games,
         )
         self._scan_btn.pack(side="right", padx=8, pady=10)
+
+        self._rules_btn = ctk.CTkButton(
+            top_bar, text="Check Rules", width=105, command=self._offer_rule_update,
+        )
+        self._rules_btn.pack(side="right", padx=4, pady=10)
 
         # Status label
         self._status_label = ctk.CTkLabel(
@@ -545,6 +577,12 @@ class App:
         )
         self._export_btn.pack(side="right", padx=4, pady=8)
 
+        self._diagnostic_btn = ctk.CTkButton(
+            action_bar, text="Export Diagnostics", width=150,
+            fg_color="#805ad5", hover_color="#6b46c1", command=self._export_diagnostics,
+        )
+        self._diagnostic_btn.pack(side="right", padx=4, pady=8)
+
     # ------------------------------------------------------------------
     # Game scanning
     # ------------------------------------------------------------------
@@ -581,7 +619,10 @@ class App:
             platform = getattr(game, "platform", "Unknown")
             install_path = getattr(game, "install_path", "")
             # config_files=None shows "Checking…" until Phase 2 updates the row
-            row = GameRow(self._scroll_frame, name, platform, install_path, config_files=None)
+            row = GameRow(
+                self._scroll_frame, name, platform, install_path,
+                config_files=None, write_callback=self._safe_apply,
+            )
             self._game_rows.append(row)
 
         self._set_scanning(False)
@@ -589,6 +630,8 @@ class App:
         # Phase 2: background Wiki query + local config detection
         if games:
             self._start_config_detection(list(games))
+
+        self.root.after(500, self._offer_rule_update)
 
     def _set_scanning(self, scanning: bool) -> None:
         if scanning:
@@ -640,11 +683,17 @@ class App:
                         config_dicts.append(_try_read_file(path))
 
                 settings = extract_key_settings(game_name, config_dicts)
+                verification = self._verification_registry.status_for(
+                    game_name,
+                    getattr(game, "platform", "Unknown"),
+                    detect_game_version(install_path),
+                    structural_fingerprint(config_dicts),
+                )
             except Exception:
                 # Graceful degradation: network errors, timeouts, parsing
                 # failures, etc. should not crash the background thread.
-                return game_name, _UNABLE_TO_CHECK, None, []
-            return game_name, found_files, settings, config_dicts
+                return game_name, _UNABLE_TO_CHECK, None, [], {"status": "candidate", "reason": "detection_failed"}
+            return game_name, found_files, settings, config_dicts, verification
 
         def _run_all() -> None:
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -653,7 +702,7 @@ class App:
                 }
                 for future in concurrent.futures.as_completed(future_to_game):
                     try:
-                        game_name, result, settings, config_dicts = future.result()
+                        game_name, result, settings, config_dicts, verification = future.result()
                     except Exception:
                         # Defensive catch: future.result() itself should not
                         # raise since _detect handles its own errors, but guard
@@ -663,6 +712,7 @@ class App:
                         result = _UNABLE_TO_CHECK
                         settings = None
                         config_dicts = []
+                        verification = {"status": "candidate", "reason": "detection_failed"}
 
                     row = rows_by_name.get(game_name)
                     if row is not None:
@@ -671,6 +721,7 @@ class App:
                             self.root.after(0, row.update_key_settings, settings)
                         if config_dicts:
                             self.root.after(0, row.update_config_dicts, config_dicts)
+                        self.root.after(0, row.update_verification, verification)
 
             # All done – update status bar back to a simple count
             self.root.after(
@@ -692,6 +743,59 @@ class App:
     def _deselect_all(self) -> None:
         for row in self._game_rows:
             row.var.set(False)
+
+    def _safe_apply(self, row: GameRow, changes: Dict[str, str]) -> List[Dict[str, Any]]:
+        return backup_and_write(
+            row.game_name,
+            row.platform,
+            detect_game_version(row.install_path),
+            row._config_dicts,
+            changes,
+            write_settings,
+            self._verification_registry,
+        )
+
+    def _offer_rule_update(self) -> None:
+        if not messagebox.askyesno(
+            "Verification Rules", "Check GitHub Releases for updated verification rules?"
+        ):
+            return
+        threading.Thread(target=self._do_rule_update, daemon=True).start()
+
+    def _do_rule_update(self) -> None:
+        result = self._verification_registry.update()
+        if result["updated"]:
+            self.root.after(0, messagebox.showinfo, "Verification Rules", "Verification rules updated successfully.")
+        else:
+            self.root.after(0, messagebox.showwarning, "Verification Rules", f"Update not applied: {result['error']}")
+
+    def _export_diagnostics(self) -> None:
+        selected = [row for row in self._game_rows if row.selected]
+        if not selected:
+            messagebox.showwarning("No Games Selected", "Select one or more games for diagnostics.")
+            return
+        include_content = messagebox.askyesno(
+            "Include Config Content",
+            "Include anonymized configuration text? Choose No to export metadata and parsed settings only.",
+        )
+        report_games = [{
+            "name": row.game_name,
+            "platform": row.platform,
+            "version": detect_game_version(row.install_path),
+            "config_files": row._config_dicts,
+            "parsed_settings": row._key_settings or {},
+        } for row in selected]
+        try:
+            output = export_diagnostic_package(
+                report_games, app_data_dir() / "reports", include_content=include_content,
+            )
+        except (OSError, ValueError) as exc:
+            messagebox.showerror("Diagnostic Export Failed", str(exc))
+            return
+        messagebox.showinfo(
+            "Diagnostics Exported",
+            f"Created {len(selected)} game(s) report.\n\n{output.parent}\n\nShare it only through your approved private channel.",
+        )
 
     def _export_selected(self) -> None:
         selected = [row for row in self._game_rows if row.selected]
@@ -856,7 +960,12 @@ class App:
             if not game_changes:
                 continue
 
-            result = write_settings(row.game_name, row._config_dicts, game_changes)
+            try:
+                result = self._safe_apply(row, game_changes)
+            except VerificationError as exc:
+                total_err += 1
+                error_details.append(f"{row.game_name}: {exc}")
+                continue
             for r in result:
                 if r["status"] == "ok":
                     total_ok += 1
@@ -913,7 +1022,12 @@ class App:
 
         for row in applicable:
             changes = row.get_pending_changes()
-            result = write_settings(row.game_name, row._config_dicts, changes)
+            try:
+                result = self._safe_apply(row, changes)
+            except VerificationError as exc:
+                total_err += 1
+                error_details.append(f"{row.game_name}: {exc}")
+                continue
             for r in result:
                 if r["status"] == "ok":
                     total_ok += 1

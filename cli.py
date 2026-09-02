@@ -119,7 +119,7 @@ def cmd_parse(args):
 
 
 def cmd_apply(args):
-    from config_manager import write_settings
+    from config_manager import VerificationRegistry, backup_and_write, detect_game_version, write_settings
 
     settings = json.loads(args.settings)
 
@@ -142,8 +142,64 @@ def cmd_apply(args):
             else:
                 config_files.append(_try_read_file(path))
 
-    results = write_settings(args.game, config_files, settings)
+    games = _scan_all()
+    matched = next((game for game in games if game.get("name", "").lower() == args.game.lower()), {})
+    results = backup_and_write(
+        args.game, matched.get("platform", "Unknown"), detect_game_version(matched.get("install_path", "")),
+        config_files, settings, write_settings, VerificationRegistry(__version__),
+    )
     _json_out(results)
+
+
+def cmd_verification_status(args):
+    from config_manager import VerificationRegistry, detect_game_version, structural_fingerprint
+
+    games = _scan_all()
+    matched = next((game for game in games if game.get("name", "").lower() == args.game.lower()), {})
+    config_files = _detect_game_files(args.game, args.install_path or "")
+    registry = VerificationRegistry(__version__)
+    _json_out(registry.status_for(
+        args.game, matched.get("platform", "Unknown"), detect_game_version(matched.get("install_path", "")),
+        structural_fingerprint(config_files),
+    ))
+
+
+def _detect_game_files(game: str, install_path: str):
+    from wiki_api import PCGamingWikiClient
+    from config_manager import detect_config_files, _try_read_file, _read_registry_key, _is_expanded_registry_path
+
+    info = PCGamingWikiClient().get_config_info(game, install_path=install_path)
+    result = []
+    for path in detect_config_files(info.get("expanded_paths") or []):
+        result.append(_read_registry_key(path) if _is_expanded_registry_path(path) else _try_read_file(path))
+    return result
+
+
+def cmd_update_verification(args):
+    from config_manager import VerificationRegistry
+    _json_out(VerificationRegistry(__version__).update())
+
+
+def cmd_diagnostic_export(args):
+    from config_manager import ConfigExporter, export_diagnostic_package
+    from wiki_api import PCGamingWikiClient
+
+    requested = {name.strip().lower() for name in args.games.split(",")} if args.games else set()
+    games = [game for game in _scan_all() if "error" not in game and (not requested or game["name"].lower() in requested)]
+
+    class _Game:
+        def __init__(self, data):
+            self.name = data["name"]
+            self.platform = data.get("platform", "")
+            self.install_path = data.get("install_path", "")
+
+    exporter = ConfigExporter(wiki_client=PCGamingWikiClient())
+    report_games = []
+    for game in games:
+        info = exporter._build_game_info(_Game(game))
+        report_games.append({"name": game["name"], "platform": game.get("platform", ""), **info})
+    output = export_diagnostic_package(report_games, args.output_dir, args.include_content, not args.exclude_hardware)
+    _json_out({"status": "ok", "output": str(output), "game_count": len(report_games)})
 
 
 def cmd_export(args):
@@ -221,6 +277,22 @@ def build_parser():
     s.add_argument("--install-path", help="Game install path (optional)")
     s.add_argument("--config-json", help="Path to a JSON file with config file data (skip auto-detect)")
     s.set_defaults(func=cmd_apply)
+
+    # verification
+    s = sub.add_parser("verification-status", help="Check a game's read/write verification state")
+    s.add_argument("game", help="Game title")
+    s.add_argument("--install-path", help="Game install path (optional)")
+    s.set_defaults(func=cmd_verification_status)
+
+    s = sub.add_parser("update-verification", help="Download the latest verified-games Release manifest")
+    s.set_defaults(func=cmd_update_verification)
+
+    s = sub.add_parser("diagnostic-export", help="Export anonymous diagnostic ZIP for selected games")
+    s.add_argument("--games", help="Comma-separated detected game names (default: all)")
+    s.add_argument("--output-dir", default=os.path.join(os.environ.get("LOCALAPPDATA", "."), "GameTuner", "reports"))
+    s.add_argument("--include-content", action="store_true", help="Include anonymized config content after explicit review")
+    s.add_argument("--exclude-hardware", action="store_true", help="Exclude approved hardware diagnostic fields")
+    s.set_defaults(func=cmd_diagnostic_export)
 
     # export
     s = sub.add_parser("export", help="Export configs to JSON package")

@@ -20,3 +20,7 @@ anonymous_exports/
 customer_exports/
 *_anonymous.json
 *_customer_export.json
+
+# Personal agent skills installed by skills.sh.
+.agents/
+skills-lock.json
