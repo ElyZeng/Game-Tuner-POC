@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import re
 import shutil
@@ -15,6 +16,8 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 import requests
 
 from .settings_parser import extract_key_settings
+
+logger = logging.getLogger(__name__)
 
 MANIFEST_FORMAT_VERSION = 1
 STATUSES = frozenset({"candidate", "read_verified", "write_verified", "deprecated"})
@@ -39,6 +42,23 @@ def app_data_dir() -> Path:
     path = Path(root) / "GameTuner"
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def configure_file_logging(data_dir: Path) -> Path:
+    """Attach a file handler (once) so update failures can be diagnosed offline."""
+    log_dir = data_dir / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / "verification.log"
+    already_attached = any(
+        isinstance(handler, logging.FileHandler) and handler.baseFilename == str(log_path)
+        for handler in logger.handlers
+    )
+    if not already_attached:
+        handler = logging.FileHandler(log_path, encoding="utf-8")
+        handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+    return log_path
 
 
 def _normalise_title(value: str) -> str:
@@ -147,6 +167,7 @@ class VerificationRegistry:
         self.current_path = self.data_dir / "verified-games.json"
         self.previous_path = self.data_dir / "verified-games.previous.json"
         self.test_write_consent_path = self.data_dir / "test-write-consent.json"
+        self.log_path = configure_file_logging(self.data_dir)
 
     def test_write_enabled(self) -> bool:
         """Return whether this user explicitly enabled experimental writes."""
@@ -181,14 +202,19 @@ class VerificationRegistry:
 
     def update(self, timeout: int = 10) -> Dict[str, Any]:
         """Fetch and atomically install the latest valid GitHub Release manifest."""
+        logger.debug("update: requesting latest release from %s", self.release_api)
         try:
             release = self.http_get(self.release_api, timeout=timeout)
+            logger.debug("update: release API responded status=%s", getattr(release, "status_code", "unknown"))
             release.raise_for_status()
             assets = {asset["name"]: asset["browser_download_url"] for asset in release.json().get("assets", [])}
+            logger.debug("update: release assets=%s", sorted(assets.keys()))
             manifest_url = assets.get("verified-games.json")
             checksum_url = assets.get("verified-games.json.sha256")
             if not manifest_url or not checksum_url:
+                logger.warning("update: release_assets_missing (found=%s)", sorted(assets.keys()))
                 raise VerificationError("release_assets_missing")
+            logger.debug("update: downloading manifest_url=%s checksum_url=%s", manifest_url, checksum_url)
             manifest_response = self.http_get(manifest_url, timeout=timeout)
             checksum_response = self.http_get(checksum_url, timeout=timeout)
             manifest_response.raise_for_status()
@@ -196,14 +222,28 @@ class VerificationRegistry:
             raw = manifest_response.content
             expected = checksum_response.text.strip().split()[0].lower()
             actual = hashlib.sha256(raw).hexdigest()
+            logger.debug("update: checksum expected=%s actual=%s", expected, actual)
             if actual != expected:
+                logger.warning("update: manifest_checksum_mismatch expected=%s actual=%s", expected, actual)
                 raise VerificationError("manifest_checksum_mismatch")
             manifest = json.loads(raw.decode("utf-8"))
             validate_manifest(manifest, self.client_version)
             self._replace_current(raw)
-            return {"updated": True, "manifest_version": manifest.get("manifest_version"), "error": None}
+            logger.info("update: installed manifest_version=%s", manifest.get("manifest_version"))
+            return {
+                "updated": True,
+                "manifest_version": manifest.get("manifest_version"),
+                "error": None,
+                "log_path": str(self.log_path),
+            }
         except (requests.RequestException, ValueError, VerificationError, KeyError) as exc:
-            return {"updated": False, "manifest_version": self.load().get("manifest_version"), "error": str(exc)}
+            logger.exception("update: failed")
+            return {
+                "updated": False,
+                "manifest_version": self.load().get("manifest_version"),
+                "error": str(exc),
+                "log_path": str(self.log_path),
+            }
 
     def _replace_current(self, raw: bytes) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)

@@ -62,6 +62,7 @@ def collect_windows_hardware() -> Dict[str, Any]:
             output = subprocess.run(
                 ["powershell", "-NoProfile", "-Command", command + " | ConvertTo-Json -Compress"],
                 capture_output=True, text=True, timeout=5, check=True,
+                creationflags=subprocess.CREATE_NO_WINDOW,
             ).stdout.strip()
             data[key] = json.loads(output) if output else "unavailable"
         except (OSError, subprocess.SubprocessError, json.JSONDecodeError):

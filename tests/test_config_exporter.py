@@ -345,6 +345,29 @@ CurrentSelectedFrameGenerationMode=1
         assert result["frame_generation"] == "On (mode 1)"
         assert result["quick_preset"] == "Medium"
 
+    def test_black_myth_picks_named_file_over_earlier_empty_candidates(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """[/Script/Engine.GameUserSettings]
+ResolutionSizeX=3840
+ResolutionSizeY=2160
+FullscreenMode=1
+"""
+        # Alphabetically-earlier decoy files (as produced by a directory scan
+        # of Unreal Engine's Saved\Config\Windows\) must not be parsed instead
+        # of the real GameUserSettings.ini.
+        config_files = [
+            {"found": True, "content": "\n", "expanded_path": "ApexDestruction.ini"},
+            {"found": True, "content": "\n", "expanded_path": "Compat.ini"},
+            {"found": True, "content": content, "expanded_path": "GameUserSettings.ini"},
+            {"found": True, "content": "\n", "expanded_path": "Wwise.ini"},
+        ]
+
+        result = extract_key_settings("Black Myth: Wukong", config_files)
+
+        assert result["resolution"] == "3840x2160"
+        assert result["screen_mode"] == "Borderless Windowed"
+
 
 class TestConfigExporterWithWiki:
     def test_export_pcgamingwiki_section_populated(self, tmp_path):
@@ -439,7 +462,7 @@ class TestConfigExporterWithWiki:
         output = str(tmp_path / "out.json")
         exporter.export([_FakeGame("Apex Legends")], output)
 
-        mock_wiki.get_config_info.assert_called_once_with("Apex Legends")
+        mock_wiki.get_config_info.assert_called_once_with("Apex Legends", install_path="")
 
 
 # ---------------------------------------------------------------------------

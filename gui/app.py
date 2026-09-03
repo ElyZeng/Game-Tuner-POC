@@ -53,6 +53,32 @@ def _require_ctk() -> None:
         )
 
 
+def _bind_drag_scroll(widget: Any, canvas: Any) -> None:
+    """Let a press-and-drag on *widget* pan *canvas* vertically, 1:1 with the
+    drag distance, so it tracks a touch drag as closely as the scrollbar does.
+
+    CTkScrollableFrame only reacts to ``<MouseWheel>``, which touchscreens do
+    not emit; Windows delivers touch input as ordinary Button-1 events, so
+    dragging on non-interactive areas is translated into canvas scrolling.
+    """
+    state: Dict[str, float] = {}
+
+    def _start(event: Any) -> None:
+        bbox = canvas.bbox("all")
+        state["content_height"] = max((bbox[3] - bbox[1]) if bbox else 1, 1)
+        state["start_y"] = event.y_root
+        state["start_fraction"] = canvas.yview()[0]
+
+    def _drag(event: Any) -> None:
+        if "start_y" not in state:
+            return
+        fraction_delta = (event.y_root - state["start_y"]) / state["content_height"]
+        canvas.yview_moveto(max(0.0, min(1.0, state["start_fraction"] - fraction_delta)))
+
+    widget.bind("<ButtonPress-1>", _start, add=True)
+    widget.bind("<B1-Motion>", _drag, add=True)
+
+
 class GameRow:
     """A single row in the game list with checkbox, status, and expandable settings panel."""
 
@@ -75,6 +101,7 @@ class GameRow:
         install_path: str = "",
         config_files: Optional[List[str]] = None,
         write_callback: Any = None,
+        scroll_canvas: Any = None,
     ) -> None:
         self.game_name = game_name
         self.platform = platform
@@ -116,6 +143,10 @@ class GameRow:
             font=ctk.CTkFont(size=11),
         )
         self._config_label.pack(side="right", padx=8, pady=4)
+
+        if scroll_canvas is not None:
+            for widget in (self._outer_frame, self.frame, self._config_label):
+                _bind_drag_scroll(widget, scroll_canvas)
 
         # Expand/collapse button
         self._toggle_btn = ctk.CTkButton(
@@ -531,6 +562,7 @@ class App:
             label_font=ctk.CTkFont(size=14, weight="bold"),
         )
         self._scroll_frame.pack(fill="both", expand=True, padx=4, pady=4)
+        _bind_drag_scroll(self._scroll_frame, self._scroll_frame._parent_canvas)
 
         # Bottom action bar
         action_bar = ctk.CTkFrame(self.root, corner_radius=0)
@@ -629,6 +661,7 @@ class App:
             row = GameRow(
                 self._scroll_frame, name, platform, install_path,
                 config_files=None, write_callback=self._safe_apply,
+                scroll_canvas=self._scroll_frame._parent_canvas,
             )
             self._game_rows.append(row)
 
@@ -788,10 +821,14 @@ class App:
 
     def _do_rule_update(self) -> None:
         result = self._verification_registry.update()
+        log_path = result.get("log_path", self._verification_registry.log_path)
         if result["updated"]:
             self.root.after(0, messagebox.showinfo, "Verification Rules", "Verification rules updated successfully.")
         else:
-            self.root.after(0, messagebox.showwarning, "Verification Rules", f"Update not applied: {result['error']}")
+            self.root.after(
+                0, messagebox.showwarning, "Verification Rules",
+                f"Update not applied: {result['error']}\n\nDetails logged to:\n{log_path}",
+            )
 
     def _export_diagnostics(self) -> None:
         selected = [row for row in self._game_rows if row.selected]

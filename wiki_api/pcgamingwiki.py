@@ -195,6 +195,28 @@ def _resolve_uid_glob_all(path: str) -> List[str]:
         return sorted(matches)
 
 
+# Config locations for Steam titles PCGamingWiki does not document, keyed by
+# lowercased game title. Kept separate from the wiki lookup so it works fully
+# offline and regardless of wiki coverage.
+_KNOWN_LOCAL_RAW_PATHS: Dict[str, List[str]] = {
+    # Ships the same Unreal Engine project ("b1") as the base game, but keeps
+    # its saved config under its own install folder instead of %LOCALAPPDATA%.
+    "black myth: wukong benchmark tool": [r"{{P|game}}\b1\Saved\Config\Windows"],
+}
+
+
+def _merge_known_local_paths(result: Dict[str, Any], game_title: str, install_path: str) -> None:
+    """Augment *result* in place with paths PCGamingWiki does not document."""
+    if not install_path:
+        return
+    for raw in _KNOWN_LOCAL_RAW_PATHS.get(game_title.strip().lower(), []):
+        if raw not in result["raw_paths"]:
+            result["raw_paths"].append(raw)
+        expanded = _expand_path_tokens(raw, install_path=install_path)
+        if expanded not in result["expanded_paths"]:
+            result["expanded_paths"].append(expanded)
+
+
 def _expand_path_tokens(path: str, install_path: str = "") -> str:
     """Expand PCGamingWiki path tokens and Wiki template tags to absolute OS paths.
 
@@ -521,10 +543,12 @@ class PCGamingWikiClient:
             if cached.get("page_title"):
                 result["page_title"] = cached["page_title"]
                 result["url"] = _WIKI_BASE + cached["page_title"].replace(" ", "_")
+            _merge_known_local_paths(result, game_title, install_path)
             return result
 
         if self._session is None:
             result["error"] = "requests library not available"
+            _merge_known_local_paths(result, game_title, install_path)
             return result
         try:
             if install_path:
@@ -558,6 +582,7 @@ class PCGamingWikiClient:
             result["expanded_paths"] = expanded
         except Exception as exc:  # pragma: no cover
             result["error"] = str(exc)
+        _merge_known_local_paths(result, game_title, install_path)
         return result
 
     def _query_cargo_raw(self, game_title: str, install_path: str = "") -> Tuple[List[str], List[str]]:

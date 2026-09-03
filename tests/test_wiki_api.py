@@ -120,6 +120,17 @@ class TestPCGamingWikiClientGetConfigInfo:
         assert result["raw_paths"] == []
         assert result["expanded_paths"] == []
 
+    def test_get_config_info_applies_known_local_path_without_wiki_page(self, monkeypatch):
+        """PCGamingWiki-undocumented Steam utilities still resolve their config folder."""
+        client = PCGamingWikiClient()
+        monkeypatch.setattr(client, "_session", None)
+
+        install_path = r"C:\Program Files (x86)\Steam\steamapps\common\Black Myth Wukong Benchmark Tool"
+        result = client.get_config_info("Black Myth: Wukong Benchmark Tool", install_path=install_path)
+
+        expected = install_path.replace("\\", "/") + "/b1/Saved/Config/Windows"
+        assert expected in result["expanded_paths"]
+
 
 # ---------------------------------------------------------------------------
 # Apex Legends wikitext snippet used across multiple tests

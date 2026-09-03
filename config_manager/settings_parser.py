@@ -14,6 +14,7 @@ Extracts 8 standardised settings from various config formats:
 from __future__ import annotations
 
 import json
+import os
 import re
 import xml.etree.ElementTree as ET
 from typing import Any, Dict, List, Optional
@@ -793,28 +794,42 @@ def extract_key_settings(
     if not readable:
         return _empty_result()
 
+    def _content_for(*names: str) -> str:
+        """Return the content of the candidate matching one of *names*.
+
+        Directory scans (e.g. Unreal Engine's ``Saved\\Config\\Windows\\``)
+        can return dozens of near-empty config files; picking ``readable[0]``
+        blindly would parse the wrong one. Fall back to it only when none of
+        the expected filenames are present.
+        """
+        wanted = {name.lower() for name in names}
+        for cfg in readable:
+            if os.path.basename(str(cfg.get("expanded_path", ""))).lower() in wanted:
+                return cfg["content"]
+        return readable[0]["content"]
+
     name_lower = game_name.lower()
 
     if "cyberpunk" in name_lower:
-        return _parse_cyberpunk(readable[0]["content"])
+        return _parse_cyberpunk(_content_for("UserSettings.json"))
 
     if "black myth" in name_lower or "wukong" in name_lower:
-        return _parse_black_myth(readable[0]["content"])
+        return _parse_black_myth(_content_for("GameUserSettings.ini"))
 
     if "clair obscur" in name_lower or "expedition 33" in name_lower:
-        return _parse_expedition_33(readable[0]["content"])
+        return _parse_expedition_33(_content_for("GameUserSettings.ini"))
 
     if "street fighter" in name_lower or "streetfighter" in name_lower:
-        return _parse_sf6(readable[0]["content"])
+        return _parse_sf6(_content_for("config.ini"))
 
     if "counter-strike" in name_lower or "cs2" in name_lower:
         return _parse_cs2(readable)
 
     if "forza" in name_lower:
-        return _parse_forza_xml(readable[0]["content"])
+        return _parse_forza_xml(_content_for("UserConfigSelections"))
 
     if name_lower in {"f1 25", "f1® 25"} or "f1 25" in name_lower:
-        return _parse_f1_xml(readable[0]["content"])
+        return _parse_f1_xml(_content_for("hardware_settings_config.xml"))
 
     for cfg in readable:
         if cfg.get("type") == "registry":

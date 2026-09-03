@@ -369,9 +369,10 @@ class ConfigExporter:
         }
 
         game_name = getattr(game, "name", str(game))
+        install_path = getattr(game, "install_path", "")
 
         if self._wiki is not None:
-            wiki_result = self._query_wiki(game_name)
+            wiki_result = self._query_wiki(game_name, install_path)
             info["pcgamingwiki"] = wiki_result
             expanded_paths: List[str] = wiki_result.get("expanded_paths") or []
             config_files: List[Dict[str, Any]] = []
@@ -395,7 +396,7 @@ class ConfigExporter:
 
         return info
 
-    def _query_wiki(self, game_name: str) -> Dict[str, Any]:
+    def _query_wiki(self, game_name: str, install_path: str = "") -> Dict[str, Any]:
         """Query the wiki client and return a structured result dict."""
         result: Dict[str, Any] = {
             "page_title": game_name,
@@ -405,7 +406,7 @@ class ConfigExporter:
             "error": None,
         }
         try:
-            wiki_info = self._wiki.get_config_info(game_name)
+            wiki_info = self._wiki.get_config_info(game_name, install_path=install_path)
             result["raw_paths"] = wiki_info.get("raw_paths") or []
             result["expanded_paths"] = wiki_info.get("expanded_paths") or []
             result["error"] = wiki_info.get("error")

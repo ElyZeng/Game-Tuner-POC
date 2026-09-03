@@ -22,6 +22,7 @@ def detect_game_version(install_path: str) -> str:
         result = subprocess.run(
             ["powershell", "-NoProfile", "-Command", command, executables[0]],
             capture_output=True, text=True, timeout=5, check=True,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         ).stdout.strip()
         return result or "unknown"
     except (OSError, subprocess.SubprocessError):

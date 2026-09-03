@@ -51,6 +51,11 @@ Check the following manually:
 For a game in a `write_verified` Release rule, repeat step 3 and select Yes. A
 write attempt must still create a backup and must restore it if validation fails.
 
+If `Check Rules` fails, the exact stage (network error, missing Release assets,
+checksum mismatch, or invalid manifest) is recorded to
+`%LOCALAPPDATA%\GameTuner\logs\verification.log`. Send that file, not a
+screenshot, when reporting an update failure.
+
 ## 4. Optional EXE packaging test
 
 Build the executable on a development machine, then copy only the generated
