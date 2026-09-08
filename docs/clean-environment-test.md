@@ -48,8 +48,9 @@ Check the following manually:
    by default. Confirm the generated ZIP is stored below
    `%LOCALAPPDATA%\GameTuner\reports`.
 
-For a game in a `write_verified` Release rule, repeat step 3 and select Yes. A
-write attempt must still create a backup and must restore it if validation fails.
+For a game in an exact `write_candidate` or `write_verified` Release rule,
+repeat step 3 and select Yes. A write attempt must still create a backup and
+must restore it if validation fails.
 
 If `Check Rules` fails, the exact stage (network error, missing Release assets,
 checksum mismatch, or invalid manifest) is recorded to

@@ -114,7 +114,7 @@ python cli.py import backup.json
 
 ### 驗證名單與診斷資料 / Verification Rules and Diagnostics
 
-遊戲只有在 GitHub Release 驗證名單中標為 `write_verified` 時才能寫入設定。
+遊戲只有在 GitHub Release 驗證名單中標為 `write_candidate`（受控測試）或 `write_verified`（正式支援）時才能寫入設定。
 未知、版本不符或設定格式不符的遊戲維持唯讀，可建立匿名診斷資料包。
 
 ```bash
@@ -133,7 +133,7 @@ python cli.py diagnostic-export --games "Counter-Strike 2" --include-content
 
 GUI 的 **Export Diagnostics** 會先開啟逐檔選取視窗。`input`、`key`、`binding`、`save`、`log`、`cache` 與空檔會預設排除；使用者仍可手動調整、全選、全不選或恢復推薦選取。若要包含匿名化設定內容，建立 ZIP 前會再次確認。
 
-寫入設定同時需要 `write_verified` 規則與客戶明確同意測試功能。GUI 中必須按下 **Enable Test Writes** 並確認警告；CLI 則必須在第一次寫入時加入 `--confirm-test-write`：
+寫入設定同時需要精確匹配的 `write_candidate` / `write_verified` 規則與客戶明確同意測試功能。`write_candidate` 不代表正式支援；完整驗收通過後才升級為 `write_verified`。GUI 中必須按下 **Enable Test Writes** 並確認警告；CLI 則必須在第一次寫入時加入 `--confirm-test-write`：
 
 ```bash
 python cli.py apply "Counter-Strike 2" --settings '{"vsync": "Off"}' --confirm-test-write
@@ -151,6 +151,10 @@ python tools/manage_verification.py build-release reviewed-rules.json --output-d
 將 `release-assets/verified-games.json` 及 `release-assets/verified-games.json.sha256` 以同一個 Release 上傳至 `ElyZeng/Game-Tuner-POC`。
 
 乾淨 Windows 環境的完整測試流程請見 [docs/clean-environment-test.md](docs/clean-environment-test.md)。
+
+要由不熟悉工具的測試人員使用 EXE 與 GUI 驗證單一遊戲是否完整支援掃描、讀取、寫入、備份、還原與診斷輸出，請使用 [docs/full-game-validation.md](docs/full-game-validation.md)。
+
+本輪 18 款遊戲的分批順序、目前能力與升級 support list 的門檻，請見 [docs/game-validation-plan.md](docs/game-validation-plan.md)。
 
 ### 外部 API 介面 / External API Interface
 

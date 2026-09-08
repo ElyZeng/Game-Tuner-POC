@@ -369,7 +369,9 @@ class GameRow:
         status = verification.get("status", "candidate")
         reason = verification.get("reason", "")
         if hasattr(self, "_apply_btn"):
-            self._apply_btn.configure(state="normal" if status == "write_verified" else "disabled")
+            self._apply_btn.configure(
+                state="normal" if status in {"write_candidate", "write_verified"} else "disabled"
+            )
         self._config_label.configure(
             text=f"{status}: {reason}",
             text_color="#48bb78" if status == "write_verified" else "#d4a017",

@@ -20,7 +20,7 @@ from .settings_parser import extract_key_settings
 logger = logging.getLogger(__name__)
 
 MANIFEST_FORMAT_VERSION = 1
-STATUSES = frozenset({"candidate", "read_verified", "write_verified", "deprecated"})
+STATUSES = frozenset({"candidate", "read_verified", "write_candidate", "write_verified", "deprecated"})
 DEFAULT_RELEASE_API = "https://api.github.com/repos/ElyZeng/Game-Tuner-POC/releases/latest"
 _BUILTIN_GAMES = (
     "Black Myth: Wukong",
@@ -279,7 +279,11 @@ class VerificationRegistry:
             rule_version = str(rule.get("version", "unknown"))
             if rule_version == game_version:
                 return {"status": rule["status"], "reason": "verified", "rule": rule}
-            return {"status": "read_verified", "reason": "version_mismatch", "rule": rule}
+            if rule["status"] == "write_verified":
+                return {"status": "read_verified", "reason": "version_mismatch", "rule": rule}
+            if rule["status"] == "write_candidate":
+                return {"status": "candidate", "reason": "version_mismatch", "rule": rule}
+            return {"status": rule["status"], "reason": "version_mismatch", "rule": rule}
         return {"status": "candidate", "reason": "fingerprint_mismatch", "rule": None}
 
 
@@ -297,7 +301,7 @@ def backup_and_write(
         raise VerificationError("test_write_consent_required")
     fingerprint = structural_fingerprint(config_files)
     verification = registry.status_for(game, platform, game_version, fingerprint)
-    if verification["status"] != "write_verified":
+    if verification["status"] not in {"write_candidate", "write_verified"}:
         raise VerificationError(f"write_not_allowed:{verification['reason']}")
 
     backup_root = registry.data_dir / "backups" / re.sub(r"[^A-Za-z0-9_.-]+", "_", game)

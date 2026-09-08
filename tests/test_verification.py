@@ -119,3 +119,59 @@ def test_remote_rule_overrides_builtin_rule(tmp_path):
     }), encoding="utf-8")
 
     assert registry.status_for("Counter-Strike 2", "Steam", "unknown", "anything")["status"] == "deprecated"
+
+
+@pytest.mark.parametrize(
+    ("declared_status", "expected_status"),
+    [
+        ("candidate", "candidate"),
+        ("read_verified", "read_verified"),
+        ("write_candidate", "candidate"),
+        ("write_verified", "read_verified"),
+        ("deprecated", "deprecated"),
+    ],
+)
+def test_version_mismatch_preserves_or_safely_downgrades_status(
+    tmp_path, declared_status, expected_status
+):
+    registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    registry.current_path.write_text(json.dumps({
+        "format_version": 1,
+        "manifest_version": "test",
+        "minimum_client_version": "0.05.1",
+        "games": [{
+            "game": "Example", "platform": "Steam", "version": "1.0", "fingerprint": "*",
+            "status": declared_status, "config_patterns": [], "supported_settings": [],
+            "reader_id": "existing-parser", "writer_id": "existing-writer",
+        }],
+    }), encoding="utf-8")
+
+    result = registry.status_for("Example", "Steam", "2.0", "anything")
+
+    assert result["status"] == expected_status
+    assert result["reason"] == "version_mismatch"
+
+
+def test_write_candidate_allows_guarded_test_write(tmp_path):
+    registry = VerificationRegistry("0.05.1", data_dir=tmp_path)
+    registry.enable_test_writes()
+    registry.current_path.write_text(json.dumps({
+        "format_version": 1,
+        "manifest_version": "test",
+        "minimum_client_version": "0.05.1",
+        "games": [{
+            "game": "Example", "platform": "Steam", "version": "1.0",
+            "fingerprint": structural_fingerprint([]), "status": "write_candidate",
+            "config_patterns": [], "supported_settings": [],
+            "reader_id": "existing-parser", "writer_id": "existing-writer",
+        }],
+    }), encoding="utf-8")
+
+    called = []
+    result = backup_and_write(
+        "Example", "Steam", "1.0", [], {},
+        lambda *_: called.append(True) or [], registry,
+    )
+
+    assert result == []
+    assert called == [True]
