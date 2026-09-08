@@ -1,5 +1,21 @@
 # Changelog
 
+# v0.06.0 (2026-09-08)
+
+### Added
+- Verification rule updates from GitHub Releases with checksum validation, local fallback, and diagnostic logging
+- `candidate`, `read_verified`, `write_candidate`, `write_verified`, and `deprecated` support states
+- Explicit tester consent, automatic backups, read-back validation, and rollback for guarded writes
+- Privacy-aware diagnostic ZIP export with per-file selection and hardware metadata
+- Touch drag scrolling and clean-environment EXE validation workflows
+
+### Changed
+- Remote verification rules merge over built-in read-only rules
+- Game-specific config selection now prefers authoritative filenames
+- Black Myth: Wukong Benchmark Tool uses its known local config path
+
+---
+
 ## v0.05.1 (2026-06-14)
 
 ### New Features

@@ -423,7 +423,7 @@ class App:
         ctk.set_default_color_theme("blue")
 
         self.root = ctk.CTk()
-        self.root.title("Game Setting Aligner v0.05.1")
+        self.root.title(f"Game Setting Aligner v{__version__}")
         self.root.geometry("960x700")
         self.root.minsize(800, 500)
 
