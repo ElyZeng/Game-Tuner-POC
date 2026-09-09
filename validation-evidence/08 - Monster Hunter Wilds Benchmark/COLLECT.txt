@@ -1,0 +1,19 @@
+Game: Monster Hunter Wilds Benchmark
+Platform: Steam
+Issue: #16
+Phase: Benchmark-only validation
+
+中文指示
+1. 在 01-read-evidence 放入 Benchmark GUI 與 Game Tuner 對照。
+2. 在 02-diagnostic-output 放入從 Benchmark config.ini 產生的兩種 ZIP。
+3. 專用 Parser/Writer 與精確 write_candidate 完成後，才可測 03、04。
+4. Write 時逐項確認 Benchmark GUI、Read-back 與 Restore。
+
+English Instructions
+1. Collect Benchmark-only read and diagnostic evidence.
+2. Wait for a Benchmark-specific parser/writer and exact rule before Write.
+3. Capture per-setting persistence, read-back, backup, and restore.
+
+停止條件 / Stop Conditions
+- 所有 Evidence 與結論必須標示 Benchmark。
+- Passing this test does not validate Monster Hunter Wilds full-game support.

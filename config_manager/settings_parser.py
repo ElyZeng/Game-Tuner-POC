@@ -249,6 +249,24 @@ def _parse_black_myth(content: str) -> Dict[str, Optional[str]]:
     r = _parse_unreal_ini(content)
     ui_values = dict(re.findall(r'\("([^"]+)",\s*"([^"]*)"\)', content))
 
+    ini_values = _parse_ini_kv(content)
+    confirmed_width = _parse_positive_int(ini_values.get("LastUserConfirmedDesiredScreenWidth"))
+    confirmed_height = _parse_positive_int(ini_values.get("LastUserConfirmedDesiredScreenHeight"))
+    if confirmed_width is not None and confirmed_height is not None:
+        r[RESOLUTION] = f"{confirmed_width}x{confirmed_height}"
+
+    image_quality = ui_values.get("ImageQuality")
+    screen_ratio = ui_values.get("ScreenRatio")
+    if image_quality and screen_ratio == "0":
+        try:
+            height = int(image_quality)
+            standard_heights = (720, 900, 1080, 1440, 2160)
+            closest_height = min(standard_heights, key=lambda value: abs(value - height))
+            if abs(closest_height - height) <= 1:
+                r[RESOLUTION] = f"{round(closest_height * 16 / 9)}x{closest_height}"
+        except ValueError:
+            pass
+
     screen_mode = ui_values.get("ScreenMode")
     if screen_mode is not None:
         r[SCREEN_MODE] = {
@@ -264,25 +282,41 @@ def _parse_black_myth(content: str) -> Dict[str, Optional[str]]:
     quality = ui_values.get("QualityLevel")
     if quality is not None:
         r[QUICK_PRESET] = {
-            "0": "Low",
-            "1": "Medium",
-            "2": "High",
-            "3": "Very High",
-            "4": "Cinematic",
+            "0": "Custom",
+            "1": "Low",
+            "2": "Medium",
+            "3": "High",
+            "4": "Very High",
+            "5": "Cinematic",
         }.get(quality, f"Quality Level {quality}")
 
-    dlss = ui_values.get("Dlss")
     super_resolution = ui_values.get("SuperResolutionSampling")
-    if dlss in {"1", "true", "True"}:
-        r[UPSCALING] = f"DLSS (mode {super_resolution})" if super_resolution else "DLSS"
-    elif super_resolution not in {None, "0"}:
-        r[UPSCALING] = f"Super Resolution (mode {super_resolution})"
+    if super_resolution is not None:
+        r[UPSCALING] = {
+            "0": "Off",
+            "1": "XeSS",
+        }.get(super_resolution, f"Super Resolution (mode {super_resolution})")
 
     insert_frame = ui_values.get("InsertFrame")
     if insert_frame is not None:
-        r[FRAME_GENERATION] = "On" if insert_frame in {"1", "true", "True"} else "Off"
+        r[FRAME_GENERATION] = {
+            "0": "Off",
+            "1": "Auto",
+        }.get(insert_frame, f"Mode {insert_frame}")
+
+    r[DYNAMIC_RESOLUTION] = "N/A"
 
     return r
+
+
+def _parse_positive_int(value: Optional[str]) -> Optional[int]:
+    if value is None:
+        return None
+    try:
+        parsed = int(float(value))
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed > 0 else None
 
 
 def _parse_expedition_33(content: str) -> Dict[str, Optional[str]]:

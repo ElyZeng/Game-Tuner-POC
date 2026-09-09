@@ -1,0 +1,20 @@
+Game: Horizon Zero Dawn Remastered
+Platform: Steam
+Issue: #13
+Phase: Read/Output; determine authoritative source before Write
+
+中文指示
+1. 修改一個 Game GUI Setting 前後各 Screenshot 一次。
+2. 在 01-read-evidence 記錄 Documents 與 Registry 哪一方同步改變。
+3. 在 02-diagnostic-output 放入兩種 ZIP，並標註每個 Candidate Source。
+4. 維護者確認 Source Precedence 與 Conflict Handling 後，才可測 03、04。
+
+English Instructions
+1. Capture one in-game setting before and after change.
+2. Record whether Documents or Registry is authoritative.
+3. Provide both diagnostic ZIPs with candidate-source notes.
+4. Wait for proven precedence and recoverable backup before Write.
+
+停止條件 / Stop Conditions
+- Source Precedence 未確認前禁止 Write。
+- Registry and file backup must both be recoverable.

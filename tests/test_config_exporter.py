@@ -297,6 +297,25 @@ class TestForzaPresetInference:
 
 
 class TestGameSpecificUnrealParsers:
+    def test_parse_black_myth_benchmark_uses_confirmed_resolution(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """[/Script/GSGameSettings.GSGameUserSettings]
+ResolutionSizeX=3840
+ResolutionSizeY=2160
+FullscreenMode=1
+LastUserConfirmedDesiredScreenWidth=1920
+LastUserConfirmedDesiredScreenHeight=1080
+UISettingData=((\"ScreenMode\", \"1\"),(\"ScreenRatio\", \"2\"),(\"ScreenResolution\", \"1\"),(\"Vsync\", \"0\"),(\"Dlss\", \"1\"),(\"SuperResolutionSampling\", \"1\"),(\"InsertFrame\", \"0\"),(\"QualityLevel\", \"3\"))
+"""
+
+        result = extract_key_settings(
+            "Black Myth: Wukong Benchmark Tool",
+            [{"found": True, "content": content, "expanded_path": "GameUserSettings.ini"}],
+        )
+
+        assert result["resolution"] == "1920x1080"
+
     def test_parse_black_myth_ui_settings(self):
         from config_manager.settings_parser import extract_key_settings
 
@@ -316,9 +335,9 @@ UISettingData=(("ScreenMode", "1"),("Vsync", "0"),("Dlss", "1"),("SuperResolutio
         assert result["resolution"] == "3840x2160"
         assert result["screen_mode"] == "Borderless Windowed"
         assert result["vsync"] == "Off"
-        assert result["upscaling"] == "DLSS (mode 1)"
-        assert result["frame_generation"] == "On"
-        assert result["quick_preset"] == "Medium"
+        assert result["upscaling"] == "XeSS"
+        assert result["frame_generation"] == "Auto"
+        assert result["quick_preset"] == "Low"
 
     def test_parse_expedition_selected_upscaler_and_frame_generation(self):
         from config_manager.settings_parser import extract_key_settings

@@ -1,0 +1,28 @@
+Game: Black Myth: Wukong Benchmark Tool
+Platform: Steam
+Issue: #34
+Phase: Benchmark-only Read/Output validation
+
+中文指示
+1. 啟動 Benchmark Tool 並儲存一次 Graphics Settings。
+2. 在 01-read-evidence 放入 Benchmark GUI 與 Game Tuner 的逐項對照 Screenshot。
+3. 確認 Game Tuner 顯示的 Game Version 不是 unknown，且來自真正的 Benchmark Executable。
+4. 在 02-diagnostic-output 放入 Metadata-only 與 Recommended Selected-content ZIP。
+5. Recommended 原則上只應選取 GameUserSettings.ini；只有宣告欄位確實需要時才加入 Engine.ini。
+6. 維護者確認獨立 Version、Fingerprint、Parser Fixture 及自動測試後，才可發布 Benchmark 專屬 write_candidate。
+7. Rule 生效後才能在 03-write-evidence 與 04-backup-restore 逐項測試 Write、Persistence、Read-back、Backup 與 Restore。
+
+English Instructions
+1. Launch the Benchmark Tool and save Graphics Settings once.
+2. Compare every displayed Game Tuner setting with the Benchmark GUI in 01-read-evidence.
+3. Confirm Game Version is not unknown and comes from the real Benchmark executable.
+4. Export Metadata-only and Recommended Selected-content ZIPs to 02-diagnostic-output.
+5. Recommended should normally select only GameUserSettings.ini; include Engine.ini only when a declared field requires it.
+6. Wait for a Benchmark-specific exact Version/Fingerprint write_candidate before any Write test.
+7. Capture per-setting persistence, read-back, backup, and restore evidence after the rule is active.
+
+停止條件 / Stop Conditions
+- 不得使用正式版 %LOCALAPPDATA%/b1 設定檔作為 Benchmark Evidence。
+- Input.ini 與其他無關 INI 不得被收集或修改。
+- Game Version 為 unknown、Fingerprint 不符或缺少精確 write_candidate 時，不得開始 Write。
+- Passing this Benchmark does not validate Black Myth: Wukong full-game support.

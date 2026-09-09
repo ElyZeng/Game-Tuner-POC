@@ -1,0 +1,23 @@
+Game: Final Fantasy XIV Online
+Platform: Steam
+Issue: #21
+Phase: Confirm license/subscription and install; establish Read
+
+中文指示
+1. 先確認 License、Subscription 與 Installation。
+2. 在 environment.txt 記錄 Steam Scan Title 與 Game Version。
+3. 在 01-read-evidence 放入 Authoritative Config、Game GUI 與 Game Tuner 對照。
+4. 在 02-diagnostic-output 放入兩種 ZIP。
+5. 記錄 Final Fantasy XIV、Dawntrail、Online 的 Title Alias 結果。
+6. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Confirm license/subscription and installation.
+2. Record exact Steam scan title and game version.
+3. Collect authoritative config, read comparisons, and both diagnostics.
+4. Record title-alias behavior.
+5. Wait for alias and dedicated writer validation before Write.
+
+停止條件 / Stop Conditions
+- Title Alias 未正規化前不可發布 Write Rule。
+- Do not test Write until dedicated support is reviewed.

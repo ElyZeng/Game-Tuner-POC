@@ -1,0 +1,19 @@
+Game: F1 25
+Platform: Steam
+Issue: #11
+Phase: Read/Output only; dedicated Writer required
+
+中文指示
+1. 在 01-read-evidence 放入所有 Graphics Setting 的 Game GUI 與 Game Tuner 對照。
+2. 在 02-diagnostic-output 放入 Metadata-only 與 Selected-content ZIP。
+3. 確認 Selected-content 包含必要的 hardware_settings_config.xml 證據。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Collect all read comparisons and both diagnostic ZIPs.
+2. Preserve anonymized hardware_settings_config.xml evidence.
+3. Do not test Write until a dedicated F1 25 writer and exact write_candidate rule exist.
+
+停止條件 / Stop Conditions
+- 通用 Forza XML Writer 不得用於 F1 25。
+- Generic XML compatibility is not proof of safe Write support.

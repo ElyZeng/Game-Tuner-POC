@@ -1,0 +1,23 @@
+Game: Diablo IV
+Platform: Battle.net
+Issue: #19
+Phase: Install; Battle.net Scanner and Read support required
+
+中文指示
+1. 安裝後放入 Battle.net 顯示 Installed 與 Game Tuner Scan Result Screenshot；不要包含 Account Information。
+2. 啟動 Game 一次並 Save Graphics Setting。
+3. 若 Documents 位於 OneDrive，將 Diablo IV Folder 設為 Always keep on this device。
+4. 在 01-read-evidence 放入 LocalPrefs.txt 與 Game GUI 對照。
+5. 在 02-diagnostic-output 放入兩種 ZIP。
+6. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Capture Battle.net installed state and Game Tuner scan result without account details.
+2. Launch once and save graphics settings.
+3. Hydrate the OneDrive Diablo IV folder for offline access when required.
+4. Compare LocalPrefs.txt with the game UI and provide both diagnostics.
+5. Wait for a dedicated Diablo writer ticket before Write.
+
+停止條件 / Stop Conditions
+- Cloud-only LocalPrefs 不是有效 Read Evidence。
+- Do not test Write until Battle.net scanning, dedicated Parser, and Writer are approved.

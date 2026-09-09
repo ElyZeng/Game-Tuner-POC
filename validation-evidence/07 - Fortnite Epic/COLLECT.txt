@@ -1,0 +1,19 @@
+Game: Fortnite
+Platform: Epic Games
+Issue: #10
+Phase: Install, then Read/Output
+
+中文指示
+1. 使用 Epic Games Launcher 安裝並啟動一次，於 Game 內儲存 Graphics Setting。
+2. 在 01-read-evidence 放入 WindowsClient Config 與 GUI 對照。
+3. 在 02-diagnostic-output 放入兩種 ZIP。
+4. 確認 input、key、binding、save、log、cache 未被預選。
+
+English Instructions
+1. Install through Epic, launch once, and save graphics settings.
+2. Compare WindowsClient values with Game Tuner.
+3. Provide both diagnostics and confirm private/non-graphics files are excluded.
+
+停止條件 / Stop Conditions
+- Write 必須使用 Epic Platform 的精確 write_candidate。
+- Rules for another Platform must never apply.
