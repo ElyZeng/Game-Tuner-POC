@@ -1,0 +1,20 @@
+Game: Red Dead Redemption 2
+Platform: Steam
+Issue: #15
+Phase: Identify authoritative graphics config and establish Read
+
+中文指示
+1. 在 01-read-evidence 放入 Settings Folder 檔名清單、Game GUI 與 Game Tuner 對照。
+2. 在 02-diagnostic-output 放入兩種 ZIP，優先確認 system.xml。
+3. 在 Game GUI Save 後，記錄哪個 File 的 Time 與 Content 改變。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Collect the Settings-folder file list and read comparisons.
+2. Provide both diagnostics and identify whether system.xml is authoritative.
+3. Record which file changes after an in-game save.
+4. Wait for format-specific parser/writer support before Write.
+
+停止條件 / Stop Conditions
+- Unrelated Config 不得加入 Selected-content ZIP。
+- Do not test Write before authoritative format review.

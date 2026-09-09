@@ -1,0 +1,22 @@
+Game: Assassin's Creed Black Flag Resynced
+Platform: Steam
+Issue: #22
+Phase: Purchase/install, then discover Config Path and establish Read/Output
+
+中文指示
+1. 在 environment.txt 記錄精確 Steam Title、App ID、Version 與 Install Location；遮蔽 Username。
+2. 放入 first-run.png：首次啟動並 Save Graphics Setting 的畫面。
+3. 在 01-read-evidence 放入新建立或變動的 Candidate Config 與 GUI 對照。
+4. 在 02-diagnostic-output 放入兩種 ZIP；目前沒有 Built-in Cache Path。
+5. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Record exact Steam title, App ID, version, and sanitized install location.
+2. Capture first launch and saved graphics settings.
+3. Collect changed candidate configs and read comparisons.
+4. Provide both diagnostics; no built-in config path currently exists.
+5. Wait for config discovery, parser/writer, and rule support before Write.
+
+停止條件 / Stop Conditions
+- Config Format 未確認前禁止 Write。
+- Do not expose username or account details in evidence.

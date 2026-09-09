@@ -1,0 +1,20 @@
+Game: ARC Raiders
+Platform: Steam
+Issue: #8
+Phase: Confirm license/install, then Read/Output
+
+中文指示
+1. 先確認 Steam 顯示 Install 或 Game 已安裝；Screenshot 不要包含 Account Name。
+2. 安裝後啟動一次並儲存 Graphics Setting。
+3. 在 01-read-evidence 放入 Game GUI 與 Game Tuner 對照。
+4. 在 02-diagnostic-output 放入兩種 Diagnostic ZIP。
+5. 維護者確認 Unreal Key、Version、Fingerprint 與 Writer 適用性後，才可測 03、04。
+
+English Instructions
+1. Confirm Steam license/install status without exposing account details.
+2. Launch once, save graphics settings, and collect Read/Output evidence.
+3. Wait for reviewed Unreal keys and an exact write_candidate before Write testing.
+
+停止條件 / Stop Conditions
+- 未有 write_candidate: verified 時，03、04 保持空白。
+- Generic Unreal detection alone does not prove Write support.

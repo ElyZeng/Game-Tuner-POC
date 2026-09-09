@@ -1,0 +1,22 @@
+Game: Cyberpunk 2077
+Platform: Steam
+Issue: #5
+Phase: Read/Output; prepare for full Write validation
+
+中文指示
+1. 在 01-read-evidence 放入 8 個 Setting 的 Game GUI 與 Game Tuner 對照。
+2. 在 02-diagnostic-output 放入 Metadata-only 與 Selected-content ZIP。
+3. 維護者確認 Game Version、UserSettings.json 與 Structural Fingerprint 後，發布精確 write_candidate Rule。
+4. Rule 生效後，在 03-write-evidence 每次只修改一個 Setting，確認 Apply、Game Persistence 與 Read-back。
+5. 在 04-backup-restore 放入 Automatic Backup、Restore 與 Export/Import 證據。
+
+English Instructions
+1. Compare all 8 advertised settings between the game UI and Game Tuner.
+2. Provide both diagnostic ZIP variants.
+3. Wait for an exact write_candidate rule based on the current game version and UserSettings.json fingerprint.
+4. Test one writable setting at a time, including persistence, read-back, backup, and restore.
+
+停止條件 / Stop Conditions
+- Write 只能修改 UserSettings.json / Write must modify only UserSettings.json.
+- Version/Fingerprint 不符或狀態不是 write_candidate: verified 時停止 Write.
+- Any wrong Read or Write value blocks write_verified promotion.

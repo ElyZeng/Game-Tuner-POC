@@ -1,0 +1,19 @@
+Game: Shadow of the Tomb Raider
+Platform: Steam
+Issue: #12
+Phase: Registry Read; Write blocked by Issue #4
+
+中文指示
+1. 在 01-read-evidence 放入 Game GUI 與 Registry Read 對照。
+2. 在 02-diagnostic-output 放入兩種 ZIP；不要額外匯出完整 Registry。
+3. Issue #4 完成後，03 必須證明只修改目標 Registry Value。
+4. 04 必須包含 Registry Backup 與 Restore 證據。
+
+English Instructions
+1. Collect Registry-backed read comparisons and diagnostics first.
+2. Do not export unrelated Registry data.
+3. Wait for recoverable Registry backup/rollback before Write testing.
+
+停止條件 / Stop Conditions
+- Issue #4 未完成時禁止 Write。
+- Never test Registry writes without a recoverable backup.

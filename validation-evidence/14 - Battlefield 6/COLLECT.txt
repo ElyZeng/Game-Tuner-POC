@@ -1,0 +1,20 @@
+Game: Battlefield 6
+Platform: Steam
+Issue: #18
+Phase: Discover format and establish Read/Output
+
+中文指示
+1. 在 Game GUI Save 一次 Graphics Setting，記錄 Settings Folder 中變動的 File。
+2. 在 01-read-evidence 放入 Game Value、Game Tuner Value 與實際 File Name。
+3. 在 02-diagnostic-output 放入兩種 ZIP，只選變動且相關的 File。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Save graphics settings in game and identify changed files.
+2. Collect game/Game Tuner comparisons and actual filenames.
+3. Provide both diagnostics using only relevant changed files.
+4. Wait for authoritative-format, parser, and writer review before Write.
+
+停止條件 / Stop Conditions
+- Format 未確認前禁止 Write。
+- Do not infer Write support from filename or extension alone.

@@ -1,0 +1,19 @@
+Game: Returnal
+Platform: Steam only
+Issue: #9
+Phase: Read/Output, then Steam-only full validation
+
+中文指示
+1. 只使用 Steam Installation 的資料。
+2. 在 01-read-evidence 放入 Steam Game GUI 與 Game Tuner 對照。
+3. 在 02-diagnostic-output 放入從 Steam Config 產生的兩種 ZIP。
+4. 維護者確認 Steam 專用 Version 與 Fingerprint 後，才可測 03、04。
+
+English Instructions
+1. Collect evidence only from the Steam installation.
+2. Provide read comparisons and both diagnostic ZIPs.
+3. Use a Steam-scoped exact candidate rule for Write validation.
+
+停止條件 / Stop Conditions
+- Epic Evidence 不可放入此資料夾。
+- Steam success must not imply Epic support.

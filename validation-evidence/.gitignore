@@ -1,0 +1,6 @@
+# Ignore tester evidence by default. Keep only collection instructions.
+**/*
+!**/
+!.gitignore
+!README.txt
+!**/COLLECT.txt

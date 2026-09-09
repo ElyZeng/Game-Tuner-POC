@@ -1,0 +1,20 @@
+Game: Baldur's Gate 3
+Platform: Steam
+Issue: #17
+Phase: Read/Output only
+
+中文指示
+1. 在 01-read-evidence 放入 graphicSettings.lsx 與 Game GUI 對照。
+2. 在 02-diagnostic-output 放入 Metadata-only 與 Selected-content ZIP。
+3. Selected-content 只可包含 Graphics Setting 所需資料。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Compare graphicSettings.lsx values with the game UI.
+2. Provide both diagnostic ZIP variants.
+3. Include only graphics-related LSX evidence.
+4. Wait for a separately approved LSX writer ticket before Write.
+
+停止條件 / Stop Conditions
+- 不要收集 analytics.lsx 或無關 PlayerProfiles Data。
+- Do not collect analytics or unrelated profile data.

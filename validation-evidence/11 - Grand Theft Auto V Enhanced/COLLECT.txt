@@ -1,0 +1,20 @@
+Game: Grand Theft Auto V Enhanced
+Platform: Steam
+Issue: #14
+Phase: Read/Output and Fixture; dedicated Parser/Writer required
+
+中文指示
+1. 在 01-read-evidence 放入 settings.xml 與 Game GUI 對照。
+2. 在 02-diagnostic-output 放入兩種 ZIP，只選真正 Graphics Config。
+3. 在 environment.txt 記錄 Game Version 與 settings.xml Last Modified Time。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Collect settings.xml and game/Game Tuner read comparisons.
+2. Provide both diagnostics using only the authoritative graphics config.
+3. Record version and modification time.
+4. Wait for GTA-specific parser/writer tests before Write.
+
+停止條件 / Stop Conditions
+- 不可使用 Forza XML Writer 測 GTA。
+- Generic XML compatibility is not proof of safe Write support.

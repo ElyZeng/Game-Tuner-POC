@@ -1,0 +1,20 @@
+Game: DOOM: The Dark Ages
+Platform: Steam
+Issue: #20
+Phase: Read/Output only
+
+中文指示
+1. 在 Game GUI Save Setting 前後，記錄 Saved Games/base 內變動的 File。
+2. 在 01-read-evidence 放入 Authoritative Config、Game GUI 與 Game Tuner 對照。
+3. 在 02-diagnostic-output 放入兩種 ZIP，排除無關 base File。
+4. 03-write-evidence 與 04-backup-restore 保持空白。
+
+English Instructions
+1. Identify changed files under Saved Games/base after an in-game save.
+2. Collect authoritative config and read comparisons.
+3. Provide both diagnostics while excluding unrelated base files.
+4. Wait for a format-specific writer before Write.
+
+停止條件 / Stop Conditions
+- Authoritative Config 未確認前禁止 Write。
+- Do not select unrelated base files.

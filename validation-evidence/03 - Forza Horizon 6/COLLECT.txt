@@ -1,0 +1,21 @@
+Game: Forza Horizon 6
+Platform: Steam
+Issue: #7
+Phase: Read/Output; prepare for full Write validation
+
+中文指示
+1. 在 01-read-evidence 比對所有顯示 Setting。
+2. 在 02-diagnostic-output 放入兩種 Diagnostic ZIP。
+3. 維護者確認 UserConfigSelections Format、Version 與 Fingerprint 後發布 write_candidate。
+4. Rule 生效後逐項 Write，啟動 Game 確認 Persistence，再用 Game Tuner Read-back。
+5. 在 04-backup-restore 驗證 Automatic Backup 與 Export/Import。
+
+English Instructions
+1. Compare every advertised value with the game UI.
+2. Provide both diagnostic ZIPs.
+3. Test each XML-backed write only after the exact candidate rule is active.
+4. Verify in-game persistence, read-back, backup, and restore.
+
+停止條件 / Stop Conditions
+- UserConfigSelections 寫入後必須是有效 XML。
+- XML corruption or unrelated field changes are failures.
