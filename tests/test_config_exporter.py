@@ -306,19 +306,35 @@ ResolutionSizeX=3840
 ResolutionSizeY=2160
 FullscreenMode=1
 FrameRateLimit=0.000000
-UISettingData=(("ScreenMode", "1"),("Vsync", "0"),("Dlss", "1"),("SuperResolutionSampling", "1"),("InsertFrame", "1"),("QualityLevel", "1"))
+UISettingData=(("ScreenMode", "1"),("ScreenRatio", "0"),("ScreenResolution", "0"),("ImageQuality", "1080"),("Vsync", "0"),("Dlss", "1"),("SuperResolutionSampling", "1"),("InsertFrame", "1"),("QualityLevel", "1"))
 """
         result = extract_key_settings(
             "Black Myth: Wukong",
             [{"found": True, "content": content, "expanded_path": "GameUserSettings.ini"}],
         )
 
-        assert result["resolution"] == "3840x2160"
+        assert result["resolution"] == "1920x1080"
         assert result["screen_mode"] == "Borderless Windowed"
         assert result["vsync"] == "Off"
-        assert result["upscaling"] == "DLSS (mode 1)"
-        assert result["frame_generation"] == "On"
-        assert result["quick_preset"] == "Medium"
+        assert result["dynamic_resolution"] == "N/A"
+        assert result["upscaling"] == "XeSS"
+        assert result["frame_generation"] == "Auto"
+        assert result["quick_preset"] == "Low"
+
+    def test_black_myth_unknown_ui_resolution_falls_back_to_unreal_resolution(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """ResolutionSizeX=3840
+ResolutionSizeY=2160
+UISettingData=(("ScreenRatio", "0"),("ImageQuality", "1000"))
+"""
+
+        result = extract_key_settings(
+            "Black Myth: Wukong",
+            [{"found": True, "content": content, "expanded_path": "GameUserSettings.ini"}],
+        )
+
+        assert result["resolution"] == "3840x2160"
 
     def test_parse_expedition_selected_upscaler_and_frame_generation(self):
         from config_manager.settings_parser import extract_key_settings
