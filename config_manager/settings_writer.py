@@ -274,6 +274,8 @@ def _write_forza_xml(
     val = settings.get(FRAME_LIMIT)
     if val is not None:
         fr_map = {"30 FPS": "0", "40 FPS": "1", "60 FPS": "2", "120 FPS": "3", "Unlimited": "4"}
+        if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
+            fr_map["60 FPS"] = "3"
         fv = fr_map.get(val, "4")
         result = _replace_xml_option(result, "FrameRate", fv)
 
