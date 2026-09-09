@@ -505,6 +505,8 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     fr = _sel_val("FrameRate")
     if fr is not None:
         fr_map = {"0": "30 FPS", "1": "40 FPS", "2": "60 FPS", "3": "120 FPS", "4": "Unlimited"}
+        if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content) and fr == "3":
+            fr_map["3"] = "60 FPS"
         r[FRAME_LIMIT] = fr_map.get(fr, f"Preset {fr}")
 
     # Dynamic Resolution

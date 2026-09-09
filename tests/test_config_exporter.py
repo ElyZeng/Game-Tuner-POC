@@ -254,6 +254,35 @@ class TestF1Parser:
 
 
 class TestForzaPresetInference:
+        def test_forza_horizon_6_frame_rate_value_three_is_60_fps(self):
+                from config_manager.settings_parser import extract_key_settings
+
+                content = """<UserConfig Version="52">
+    <settings>
+        <ResolutionWidth value="1920" />
+        <ResolutionHeight value="1080" />
+        <Fullscreen value="1" />
+    </settings>
+    <selections>
+        <option id="VSync" value="1" />
+        <option id="FrameRate" value="3" />
+        <option id="UseDynamicOptimization" value="0" />
+        <option id="DLSSMode" value="0" />
+        <option id="FSR3Mode" value="0" />
+        <option id="XeSSMode" value="0" />
+        <option id="CarLOD" value="3" />
+        <option id="GeometryQuality" value="4" />
+    </selections>
+</UserConfig>"""
+
+                result = extract_key_settings(
+                        "Forza Horizon 6",
+                        [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+                )
+
+                assert result["frame_limit"] == "60 FPS"
+                assert result["quick_preset"] == "Custom"
+
         def test_mixed_quality_options_are_custom(self):
                 from config_manager.settings_parser import extract_key_settings
 
@@ -276,6 +305,17 @@ class TestForzaPresetInference:
                 )
 
                 assert result["quick_preset"] == "Custom"
+
+
+
+class TestForzaWriter:
+    def test_forza_horizon_6_writes_60_fps_as_frame_rate_three(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><selections><option id="FrameRate" value="0" /></selections></UserConfig>'
+        result = _write_forza_xml(content, {"frame_limit": "60 FPS"})
+
+        assert '<option id="FrameRate" value="3" />' in result
 
 
         class TestF1PresetInference:
