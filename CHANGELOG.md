@@ -1,5 +1,17 @@
 # Changelog
 
+# v0.06.1 (2026-09-09)
+
+### Fixed
+- Black Myth: Wukong and Benchmark Tool parsing now prefers confirmed resolution values and corrected UI mappings.
+- Forza Horizon 6 `UserConfig` Version 52 frame-rate read/write mapping now reports and writes 60 FPS correctly.
+
+### Validation
+- Added regression coverage for Black Myth Benchmark and Forza Horizon 6 parser/writer behavior.
+- Updated the 19-target game validation plan and evidence collection instructions.
+
+---
+
 # v0.06.0 (2026-09-08)
 
 ### Added
