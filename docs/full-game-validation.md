@@ -29,6 +29,11 @@ Before sending the test package:
    of that ZIP through the approved private channel.
 5. Tell the tester which game settings are expected to be supported.
 
+For benchmark/demo tools, record the exact tool name and do not treat a passing
+result as support for the corresponding full game. For Battle.net games, the
+GUI must first detect the Battle.net installation and the settings file must be
+available offline rather than only as a cloud placeholder.
+
 Record these values before testing:
 
 | Field | Expected value |

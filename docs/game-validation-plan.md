@@ -20,6 +20,7 @@
 原始清單中 `Cyberpunk 2077` 重複一次，合併後共有 18 款唯一遊戲。測試前必須使用掃描結果中的實際名稱，特別注意：
 
 - `Diablo 4` 以快取名稱 `Diablo IV` 比對。
+- `Diablo IV` 本輪限定 Battle.net 版本；必須先有 Battle.net scanner，且 OneDrive `LocalPrefs.txt` 必須可離線讀取。
 - `Final Fantasy XIV` 目前快取鍵為 `Final Fantasy XIV: Dawntrail`，Wiki 頁面為 `Final Fantasy XIV Online`。
 - `Arc Raiders` 目前快取鍵為 `ARC Raiders`。
 - `Assassin's Creed Black Flag Resynced` 尚無快取路徑，必須先確認產品正式名稱及設定位置。
@@ -70,7 +71,7 @@
 | 9 | Horizon Zero Dawn Remastered | Documents + Registry | 可能同時存在檔案與 Registry，需確認實際權威來源 |
 | 10 | Grand Theft Auto V Enhanced | `settings.xml` | 目前沒有 GTA 專用 parser/writer，不能沿用 Forza XML 假設 |
 | 11 | Red Dead Redemption 2 | `Settings` 資料夾 | 需辨識 `system.xml` 等真正圖形檔並排除其他資料 |
-| 12 | Monster Hunter Wilds | 安裝目錄 `config.ini` | 已觀察到部分欄位，但現有 Unreal writer 不代表 RE Engine 格式可寫 |
+| 12 | Monster Hunter Wilds Benchmark | Benchmark 安裝目錄 `config.ini` | 只驗證 Benchmark，不代表 Monster Hunter Wilds 正式版支援；現有 Unreal writer 不代表 RE Engine 格式可寫 |
 
 完成條件：每款建立格式專用 fixture 與測試；Read 全欄位吻合後，另行審核 writer 才能進入 `write_candidate`。
 
@@ -82,7 +83,7 @@
 |---|---|---|---|
 | 13 | Baldur's Gate 3 | 有 `graphicSettings.lsx` 等路徑，無 LSX 專用 parser/writer | 匿名 LSX fixture + 遊戲 GUI 對照表 |
 | 14 | Battlefield 6 | 有 Documents `settings` 路徑，格式未驗證 | 實際檔案清單 + metadata/content 診斷包 |
-| 15 | Diablo IV | 有 `LocalPrefs.txt` 路徑，無專用 parser/writer | 正規化名稱 + 匿名 LocalPrefs fixture |
+| 15 | Diablo IV（Battle.net） | 已知安裝與 `LocalPrefs.txt`，但 GUI 無 Battle.net scanner；OneDrive 檔案可能未下載 | Battle.net 掃描 + Documents 重導 + 匿名 LocalPrefs fixture |
 | 16 | DOOM: The Dark Ages | 有 Saved Games `base` 路徑，格式未驗證 | 真正圖形設定檔及欄位鍵值 |
 | 17 | Final Fantasy XIV | 有 Documents 設定資料夾，名稱與版本別名需確認 | 掃描名稱、實際設定檔及遊戲 UI 對照 |
 | 18 | Assassin's Creed Black Flag Resynced | 無快取路徑 | 正式掃描名稱、平台、版本、設定檔位置及匿名內容 |
@@ -129,14 +130,14 @@
 5. ARC Raiders
 6. Returnal（Steam、Epic 分開）
 7. Fortnite
-8. Monster Hunter Wilds
+8. Monster Hunter Wilds Benchmark
 9. Shadow of the Tomb Raider
 10. Horizon Zero Dawn Remastered
 11. Grand Theft Auto V Enhanced
 12. Red Dead Redemption 2
 13. Baldur's Gate 3
 14. Battlefield 6
-15. Diablo IV
+15. Diablo IV（Battle.net）
 16. DOOM: The Dark Ages
 17. Final Fantasy XIV
 18. Assassin's Creed Black Flag Resynced

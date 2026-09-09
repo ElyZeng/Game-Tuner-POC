@@ -84,7 +84,7 @@
   "Diablo IV": {
     "page_title": "Diablo IV",
     "raw_paths": [
-      "{{p|userprofile}}\\Documents\\Diablo IV\\LocalPrefs.txt"
+      "{{p|documents}}\\Diablo IV\\LocalPrefs.txt"
     ],
     "expanded_paths": [],
     "source": "mediawiki"
