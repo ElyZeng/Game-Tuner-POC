@@ -154,7 +154,7 @@ python tools/manage_verification.py build-release reviewed-rules.json --output-d
 
 要由不熟悉工具的測試人員使用 EXE 與 GUI 驗證單一遊戲是否完整支援掃描、讀取、寫入、備份、還原與診斷輸出，請使用 [docs/full-game-validation.md](docs/full-game-validation.md)。
 
-本輪 18 款遊戲的分批順序、目前能力與升級 support list 的門檻，請見 [docs/game-validation-plan.md](docs/game-validation-plan.md)。
+本輪 19 個驗證目標的分批順序、目前能力與升級 support list 的門檻，請見 [docs/game-validation-plan.md](docs/game-validation-plan.md)。
 
 ### 外部 API 介面 / External API Interface
 

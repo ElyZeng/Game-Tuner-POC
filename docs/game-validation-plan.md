@@ -17,8 +17,9 @@
 
 ## 清單正規化
 
-原始清單中 `Cyberpunk 2077` 重複一次，合併後共有 18 款唯一遊戲。測試前必須使用掃描結果中的實際名稱，特別注意：
+原始清單中 `Cyberpunk 2077` 重複一次；加入獨立的 `Black Myth: Wukong Benchmark Tool` 後，共有 19 個驗證目標。測試前必須使用掃描結果中的實際名稱，特別注意：
 
+- `Black Myth: Wukong` 正式版與 `Black Myth: Wukong Benchmark Tool` 必須使用不同證據、版本、指紋及驗證規則。
 - `Diablo 4` 以快取名稱 `Diablo IV` 比對。
 - `Diablo IV` 本輪限定 Battle.net 版本；必須先有 Battle.net scanner，且 OneDrive `LocalPrefs.txt` 必須可離線讀取。
 - `Final Fantasy XIV` 目前快取鍵為 `Final Fantasy XIV: Dawntrail`，Wiki 頁面為 `Final Fantasy XIV Online`。
@@ -43,10 +44,20 @@
 | # | 遊戲 | 目前依據 | 第一個目標 | Write 前置風險 |
 |---|---|---|---|---|
 | 1 | Cyberpunk 2077 | 已有專用 JSON parser/writer；需重新驗證目前版本 | Read → Output → `write_candidate` → Write | 遊戲更新可能改變 JSON 欄位 |
-| 2 | Black Myth Wukong | 專用 Read parser；Unreal INI writer；實機已讀到 8 個欄位 | 完整驗證 | 只可寫 `GameUserSettings.ini`，不得碰同資料夾其他 INI |
+| 2 | Black Myth Wukong（正式版） | 專用 Read parser；Unreal INI writer；實機已讀到 8 個欄位 | 完整驗證 | 只可寫 `GameUserSettings.ini`，不得碰同資料夾其他 INI |
 | 3 | Forza Horizon 6 | 專用 XML parser/writer；已有本機解析紀錄 | 完整驗證 | XML 欄位與遊戲版本需精確匹配 |
 
 完成條件：三款逐一完成 [full-game-validation.md](full-game-validation.md) 全部章節；每款獨立從 `write_candidate` 升級為 `write_verified`。
+
+## Benchmark-only：獨立產品驗證
+
+Benchmark Tool 必須視為獨立產品。即使使用相同引擎或欄位，也不得沿用正式版的 Read/Write 結論。
+
+| # | 遊戲 | 候選格式/路徑 | 驗證順序 | 主要風險 |
+|---|---|---|---|---|
+| 19 | Black Myth: Wukong Benchmark Tool | Steam 安裝目錄下的 `b1/Saved/Config/Windows` | Scan → Version → Read → Output；專用精確規則完成後才可 Write | 不得誤讀正式版 `%LOCALAPPDATA%/b1`；不得沿用正式版版本、指紋或 support status |
+
+完成條件：獨立取得 Benchmark GUI 對照、Game Version、兩種診斷 ZIP、匿名 Parser Fixture 與自動測試。Write 前必須另行發布精確匹配 Benchmark 平台、版本及指紋的 `write_candidate`。
 
 ## 批次 2：引擎格式候選
 
@@ -124,20 +135,21 @@
 ## 建議執行順序
 
 1. Cyberpunk 2077
-2. Black Myth Wukong
-3. Forza Horizon 6
-4. F1 25（先 Read，再補 writer）
-5. ARC Raiders
-6. Returnal（Steam、Epic 分開）
-7. Fortnite
-8. Monster Hunter Wilds Benchmark
-9. Shadow of the Tomb Raider
-10. Horizon Zero Dawn Remastered
-11. Grand Theft Auto V Enhanced
-12. Red Dead Redemption 2
-13. Baldur's Gate 3
-14. Battlefield 6
-15. Diablo IV（Battle.net）
-16. DOOM: The Dark Ages
-17. Final Fantasy XIV
-18. Assassin's Creed Black Flag Resynced
+2. Black Myth Wukong（正式版）
+3. Black Myth: Wukong Benchmark Tool（獨立 Benchmark-only 驗證）
+4. Forza Horizon 6
+5. F1 25（先 Read，再補 writer）
+6. ARC Raiders
+7. Returnal（Steam、Epic 分開）
+8. Fortnite
+9. Monster Hunter Wilds Benchmark
+10. Shadow of the Tomb Raider
+11. Horizon Zero Dawn Remastered
+12. Grand Theft Auto V Enhanced
+13. Red Dead Redemption 2
+14. Baldur's Gate 3
+15. Battlefield 6
+16. Diablo IV（Battle.net）
+17. DOOM: The Dark Ages
+18. Final Fantasy XIV
+19. Assassin's Creed Black Flag Resynced
