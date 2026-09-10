@@ -361,6 +361,26 @@ class TestForzaPresetInference:
 
 
 class TestForzaWriter:
+    def test_forza_writes_high_preset_quality_signature(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><selections><option id="CarLOD" value="0" /><option id="GeometryQuality" value="0" /><option id="ShadowQuality" value="0" /></selections></UserConfig>'
+        result = _write_forza_xml(content, {"quick_preset": "High"})
+
+        assert '<option id="CarLOD" value="2" />' in result
+        assert '<option id="GeometryQuality" value="3" />' in result
+        assert '<option id="ShadowQuality" value="2" />' in result
+
+    def test_forza_writes_high_preset_quality_signature(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><selections><option id="CarLOD" value="0" /><option id="GeometryQuality" value="0" /><option id="ShadowQuality" value="0" /></selections></UserConfig>'
+        result = _write_forza_xml(content, {"quick_preset": "High"})
+
+        assert '<option id="CarLOD" value="2" />' in result
+        assert '<option id="GeometryQuality" value="3" />' in result
+        assert '<option id="ShadowQuality" value="2" />' in result
+
     def test_forza_reads_xess_quality_names(self):
         from config_manager.settings_parser import extract_key_settings
 
@@ -989,5 +1009,5 @@ def test_forza_quick_preset_is_read_only_derived_value():
     from config_manager.settings_parser import QUICK_PRESET, is_setting_writable_for_game
 
     assert QUICK_PRESET == "quick_preset"
-    assert is_setting_writable_for_game("Forza Horizon 6", QUICK_PRESET) is False
+    assert is_setting_writable_for_game("Forza Horizon 6", QUICK_PRESET) is True
     assert is_setting_writable_for_game("Cyberpunk 2077", QUICK_PRESET) is True
