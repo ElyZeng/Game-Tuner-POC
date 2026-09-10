@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.07.1 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 Read inference now recognizes Very Low, Low, Medium, High, Ultra, Extreme, High + RT, Ultra + RT, and Extreme + RT signatures.
+- Overall presets and ray-tracing variants remain Read-only; mixed signatures remain `Custom`.
+
+---
+
 # v0.07.0 (2026-09-10)
 
 ### Fixed
