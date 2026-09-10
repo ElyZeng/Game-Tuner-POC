@@ -360,7 +360,7 @@ class TestForzaWriter:
             {"screen_mode": "Fullscreen"},
         )
 
-        assert (game_root / "fullscreen_choice").read_bytes() == b"1"
+        assert (game_root / "fullscreen_choice").read_bytes() == bytes([1])
         assert any(item["detail"] == "Forza fullscreen choice written" for item in result)
 
     def test_forza_horizon_6_writes_fullscreen_using_version_52_semantics(self):

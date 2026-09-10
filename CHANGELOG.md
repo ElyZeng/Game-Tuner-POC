@@ -1,5 +1,12 @@
 # Changelog
 
+# v0.06.6 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 now writes `fullscreen_choice` as the required binary byte (`0x00` or `0x01`) instead of ASCII text (`"0"` or `"1"`).
+
+---
+
 # v0.06.5 (2026-09-10)
 
 ### Fixed
