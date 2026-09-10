@@ -491,7 +491,10 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     # Screen Mode
     fs = _xml_val("Fullscreen")
     if fs is not None:
-        r[SCREEN_MODE] = "Fullscreen" if fs == "1" else "Windowed"
+        if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
+            r[SCREEN_MODE] = "Fullscreen" if fs == "0" else "Windowed"
+        else:
+            r[SCREEN_MODE] = "Fullscreen" if fs == "1" else "Windowed"
 
     # VSync
     vs = _sel_val("VSync")

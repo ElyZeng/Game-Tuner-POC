@@ -260,8 +260,11 @@ def _write_forza_xml(
     # Screen Mode
     val = settings.get(SCREEN_MODE)
     if val is not None:
+        fullscreen_value = "1" if val == "Fullscreen" else "0"
+        if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
+            fullscreen_value = "0" if val == "Fullscreen" else "1"
         result = _replace_xml_attr(
-            result, "Fullscreen", "value", "1" if val == "Fullscreen" else "0"
+            result, "Fullscreen", "value", fullscreen_value
         )
 
     # VSync
