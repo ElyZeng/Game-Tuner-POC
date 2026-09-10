@@ -320,6 +320,21 @@ class TestForzaPresetInference:
                 assert result["frame_limit"] == "60 FPS"
                 assert result["quick_preset"] == "Custom"
 
+        @pytest.mark.parametrize(
+            ("enum_value", "expected"),
+            [("0", "20 FPS"), ("1", "30 FPS"), ("2", "40 FPS"), ("3", "60 FPS"), ("4", "120 FPS"), ("5", "Unlimited")],
+        )
+        def test_forza_version_52_reads_all_frame_rate_enums(self, enum_value, expected):
+            from config_manager.settings_parser import extract_key_settings
+
+            content = f'<UserConfig Version="52"><selections><option id="FrameRate" value="{enum_value}" /></selections></UserConfig>'
+            result = extract_key_settings(
+                "Forza Horizon 6",
+                [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+            )
+
+            assert result["frame_limit"] == expected
+
         def test_mixed_quality_options_are_custom(self):
                 from config_manager.settings_parser import extract_key_settings
 
@@ -921,3 +936,35 @@ class TestDetectConfigFiles:
         result = detect_config_files([str(cfg_file), str(sub_dir)])
         assert str(cfg_file) in result
         assert str(sub_cfg) in result
+
+
+class TestForzaVersion52FrameRateEnums:
+    @pytest.mark.parametrize(
+        ("enum_value", "expected"),
+        [
+            ("0", "20 FPS"),
+            ("1", "30 FPS"),
+            ("2", "40 FPS"),
+            ("3", "60 FPS"),
+            ("4", "120 FPS"),
+            ("5", "Unlimited"),
+        ],
+    )
+    def test_reads_all_frame_rate_enums(self, enum_value, expected):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = f'<UserConfig Version="52"><selections><option id="FrameRate" value="{enum_value}" /></selections></UserConfig>'
+        result = extract_key_settings(
+            "Forza Horizon 6",
+            [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+        )
+
+        assert result["frame_limit"] == expected
+
+
+def test_forza_quick_preset_is_read_only_derived_value():
+    from config_manager.settings_parser import QUICK_PRESET, is_setting_writable_for_game
+
+    assert QUICK_PRESET == "quick_preset"
+    assert is_setting_writable_for_game("Forza Horizon 6", QUICK_PRESET) is False
+    assert is_setting_writable_for_game("Cyberpunk 2077", QUICK_PRESET) is True
