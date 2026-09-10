@@ -346,6 +346,23 @@ class TestForzaPresetInference:
 
 
 class TestForzaWriter:
+    def test_forza_screen_mode_writes_fullscreen_choice_sidecar(self, tmp_path):
+        from config_manager.settings_writer import write_settings
+
+        game_root = tmp_path / "ForzaHorizon6"
+        config_path = game_root / "LocalStorage_Shared" / "ForzaUserConfigSelections" / "UserConfigSelections"
+        config_path.parent.mkdir(parents=True)
+        config_path.write_text('<UserConfig Version="52"><settings><Fullscreen value="0" /></settings></UserConfig>', encoding="utf-8")
+
+        result = write_settings(
+            "Forza Horizon 6",
+            [{"expanded_path": str(config_path), "content": config_path.read_text(encoding="utf-8"), "found": True}],
+            {"screen_mode": "Fullscreen"},
+        )
+
+        assert (game_root / "fullscreen_choice").read_bytes() == b"1"
+        assert any(item["detail"] == "Forza fullscreen choice written" for item in result)
+
     def test_forza_horizon_6_writes_fullscreen_using_version_52_semantics(self):
         from config_manager.settings_writer import _write_forza_xml
 

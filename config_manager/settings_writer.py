@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .settings_parser import (
@@ -32,6 +33,18 @@ def _safe_write(path: str, content: str) -> None:
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
+
+def forza_auxiliary_paths(config_files: List[Dict[str, Any]]) -> List[str]:
+    """Return Forza files that persist settings outside UserConfigSelections."""
+    paths: List[str] = []
+    for config_file in config_files:
+        config_path = Path(str(config_file.get("expanded_path", "")))
+        if (
+            config_path.name == "UserConfigSelections"
+            and config_path.parent.name == "ForzaUserConfigSelections"
+        ):
+            paths.append(str(config_path.parent.parent.parent / "fullscreen_choice"))
+    return paths
 
 
 def _replace_ini_value(content: str, key: str, new_value: str) -> str:
@@ -548,6 +561,12 @@ def write_settings(
                     new_content = _write_forza_xml(cfg["content"], to_write)
                     _safe_write(path, new_content)
                     results.append({"path": path, "status": "ok", "detail": "Forza XML settings written"})
+                    if SCREEN_MODE in to_write:
+                        fullscreen_value = b"1" if to_write[SCREEN_MODE] == "Fullscreen" else b"0"
+                        for auxiliary_path in forza_auxiliary_paths(config_files):
+                            with open(auxiliary_path, "wb") as auxiliary_file:
+                                auxiliary_file.write(fullscreen_value)
+                            results.append({"path": auxiliary_path, "status": "ok", "detail": "Forza fullscreen choice written"})
                 except Exception as e:
                     results.append({"path": path, "status": "error", "detail": str(e)})
                 break
