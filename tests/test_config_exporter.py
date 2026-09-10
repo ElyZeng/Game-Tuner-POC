@@ -383,6 +383,16 @@ class TestForzaWriter:
 
         assert result["upscaling"] == "FSR Ultra Performance"
 
+    def test_forza_infers_high_preset_from_captured_signature(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        values = ["2", "2", "3", "3", "3", "0", "2", "0", "1", "0", "2", "3", "2", "2", "3", "3", "2"]
+        ids = ["CarLOD", "EnvStreamingTex", "GeometryQuality", "ReflectionQuality", "SSRQuality", "RTReflectionQuality", "ShadowQuality", "NightShadows", "SSGIQuality", "RTGIQuality", "ShaderQuality", "AudioQuality", "DeformableSnowQuality", "ParticlesSettings", "VolumetricFogQuality", "LensEffects", "MotionBlurQuality"]
+        content = '<UserConfig Version="52"><selections>' + ''.join(f'<option id="{key}" value="{value}" />' for key, value in zip(ids, values)) + '</selections></UserConfig>'
+        result = extract_key_settings("Forza Horizon 6", [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}])
+
+        assert result["quick_preset"] == "High"
+
     def test_forza_writes_xess_and_fsr_quality_enums(self):
         from config_manager.settings_writer import _write_forza_xml
 
