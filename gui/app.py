@@ -38,6 +38,7 @@ from config_manager.settings_parser import (
     DISPLAY_NAMES_EN,
     SETTING_OPTIONS,
     setting_options_for_game,
+    is_setting_writable_for_game,
 )
 from config_manager.settings_writer import write_settings
 
@@ -250,7 +251,7 @@ class GameRow:
             self._setting_labels[key] = val_label
 
             # Dropdown — only for editable settings (not N/A)
-            if value != "N/A":
+            if value != "N/A" and is_setting_writable_for_game(self.game_name, key):
                 options = setting_options_for_game(self.game_name, key)
                 var = ctk.StringVar(value="—")
                 self._setting_vars[key] = var

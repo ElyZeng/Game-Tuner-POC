@@ -960,3 +960,11 @@ class TestForzaVersion52FrameRateEnums:
         )
 
         assert result["frame_limit"] == expected
+
+
+def test_forza_quick_preset_is_read_only_derived_value():
+    from config_manager.settings_parser import QUICK_PRESET, is_setting_writable_for_game
+
+    assert QUICK_PRESET == "quick_preset"
+    assert is_setting_writable_for_game("Forza Horizon 6", QUICK_PRESET) is False
+    assert is_setting_writable_for_game("Cyberpunk 2077", QUICK_PRESET) is True
