@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.06.8 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 Version 52 FrameRate parsing now covers 20/30/40/60/120/Unlimited consistently.
+- Forza Quick Preset remains visible as a derived Read value, but its non-functional write dropdown is hidden.
+
+---
+
 # v0.06.7 (2026-09-10)
 
 ### Fixed
