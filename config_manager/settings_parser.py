@@ -129,6 +129,16 @@ FORZA_SETTING_OPTIONS: Dict[str, List[str]] = {
         "FSR Ultra Performance", "XeSS Ultra Quality Plus", "XeSS Ultra Quality",
         "XeSS Quality", "XeSS Balanced", "XeSS Performance",
     ],
+    QUICK_PRESET: ["—", "Very Low", "Low", "Medium", "High", "Ultra", "Extreme"],
+}
+
+FORZA_PRESET_SIGNATURES: Dict[str, Dict[str, str]] = {
+    "Very Low": {"CarLOD": "0", "EnvStreamingTex": "0", "GeometryQuality": "0", "ReflectionQuality": "0", "SSRQuality": "0", "RTReflectionQuality": "0", "ShadowQuality": "0", "NightShadows": "0", "SSGIQuality": "0", "RTGIQuality": "0", "ShaderQuality": "0", "AudioQuality": "0", "DeformableSnowQuality": "0", "ParticlesSettings": "0", "VolumetricFogQuality": "0", "LensEffects": "0", "MotionBlurQuality": "0"},
+    "Low": {"CarLOD": "0", "EnvStreamingTex": "0", "GeometryQuality": "1", "ReflectionQuality": "1", "SSRQuality": "1", "RTReflectionQuality": "0", "ShadowQuality": "1", "NightShadows": "0", "SSGIQuality": "0", "RTGIQuality": "0", "ShaderQuality": "1", "AudioQuality": "1", "DeformableSnowQuality": "0", "ParticlesSettings": "1", "VolumetricFogQuality": "1", "LensEffects": "1", "MotionBlurQuality": "0"},
+    "Medium": {"CarLOD": "1", "EnvStreamingTex": "1", "GeometryQuality": "2", "ReflectionQuality": "2", "SSRQuality": "2", "RTReflectionQuality": "0", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "1", "RTGIQuality": "0", "ShaderQuality": "1", "AudioQuality": "2", "DeformableSnowQuality": "1", "ParticlesSettings": "1", "VolumetricFogQuality": "2", "LensEffects": "2", "MotionBlurQuality": "1"},
+    "High": {"CarLOD": "2", "EnvStreamingTex": "2", "GeometryQuality": "3", "ReflectionQuality": "3", "SSRQuality": "3", "RTReflectionQuality": "0", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "1", "RTGIQuality": "0", "ShaderQuality": "2", "AudioQuality": "3", "DeformableSnowQuality": "2", "ParticlesSettings": "2", "VolumetricFogQuality": "3", "LensEffects": "3", "MotionBlurQuality": "2"},
+    "Ultra": {"CarLOD": "3", "EnvStreamingTex": "3", "GeometryQuality": "4", "ReflectionQuality": "3", "SSRQuality": "4", "RTReflectionQuality": "0", "ShadowQuality": "3", "NightShadows": "1", "SSGIQuality": "2", "RTGIQuality": "0", "ShaderQuality": "3", "AudioQuality": "4", "DeformableSnowQuality": "3", "ParticlesSettings": "3", "VolumetricFogQuality": "4", "LensEffects": "4", "MotionBlurQuality": "3"},
+    "Extreme": {"CarLOD": "4", "EnvStreamingTex": "4", "GeometryQuality": "5", "ReflectionQuality": "4", "SSRQuality": "5", "RTReflectionQuality": "0", "ShadowQuality": "4", "NightShadows": "2", "SSGIQuality": "2", "RTGIQuality": "0", "ShaderQuality": "4", "AudioQuality": "4", "DeformableSnowQuality": "4", "ParticlesSettings": "4", "VolumetricFogQuality": "5", "LensEffects": "4", "MotionBlurQuality": "3"},
 }
 
 
@@ -140,7 +150,7 @@ def setting_options_for_game(game_name: str, key: str) -> List[str]:
 
 def is_setting_writable_for_game(game_name: str, key: str) -> bool:
     """Return whether the GUI should offer an Apply dropdown for this setting."""
-    return not ("forza horizon 6" in game_name.casefold() and key == QUICK_PRESET)
+    return True
 
 # Per-game Quick Preset option lists keyed by parser-type string.
 QUICK_PRESET_OPTIONS: Dict[str, List[str]] = {
@@ -566,19 +576,14 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
         for option_id in quality_ids
         if option_id in options
     }
-    forza_presets = {
-        # Signatures captured from the game's Graphics & Performance preset UI.
-        "Extreme + RT": {"CarLOD": "4", "EnvStreamingTex": "4", "GeometryQuality": "5", "ReflectionQuality": "4", "SSRQuality": "0", "RTReflectionQuality": "3", "ShadowQuality": "4", "NightShadows": "2", "SSGIQuality": "0", "RTGIQuality": "3", "ShaderQuality": "4", "AudioQuality": "4", "DeformableSnowQuality": "4", "ParticlesSettings": "4", "VolumetricFogQuality": "5", "LensEffects": "4", "MotionBlurQuality": "3"},
-        "Ultra + RT": {"CarLOD": "3", "EnvStreamingTex": "3", "GeometryQuality": "4", "ReflectionQuality": "3", "SSRQuality": "0", "RTReflectionQuality": "2", "ShadowQuality": "3", "NightShadows": "1", "SSGIQuality": "0", "RTGIQuality": "2", "ShaderQuality": "3", "AudioQuality": "4", "DeformableSnowQuality": "3", "ParticlesSettings": "3", "VolumetricFogQuality": "4", "LensEffects": "4", "MotionBlurQuality": "3"},
-        "High + RT": {"CarLOD": "2", "EnvStreamingTex": "2", "GeometryQuality": "3", "ReflectionQuality": "3", "SSRQuality": "0", "RTReflectionQuality": "1", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "0", "RTGIQuality": "1", "ShaderQuality": "2", "AudioQuality": "3", "DeformableSnowQuality": "2", "ParticlesSettings": "2", "VolumetricFogQuality": "3", "LensEffects": "3", "MotionBlurQuality": "2"},
-        "Extreme": {"CarLOD": "4", "EnvStreamingTex": "4", "GeometryQuality": "5", "ReflectionQuality": "4", "SSRQuality": "5", "RTReflectionQuality": "0", "ShadowQuality": "4", "NightShadows": "2", "SSGIQuality": "2", "RTGIQuality": "0", "ShaderQuality": "4", "AudioQuality": "4", "DeformableSnowQuality": "4", "ParticlesSettings": "4", "VolumetricFogQuality": "5", "LensEffects": "4", "MotionBlurQuality": "3"},
-        "High": {"CarLOD": "2", "EnvStreamingTex": "2", "GeometryQuality": "3", "ReflectionQuality": "3", "SSRQuality": "3", "RTReflectionQuality": "0", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "1", "RTGIQuality": "0", "ShaderQuality": "2", "AudioQuality": "3", "DeformableSnowQuality": "2", "ParticlesSettings": "2", "VolumetricFogQuality": "3", "LensEffects": "3", "MotionBlurQuality": "2"},
-        "Low": {"CarLOD": "0", "EnvStreamingTex": "0", "GeometryQuality": "1", "ReflectionQuality": "1", "SSRQuality": "1", "RTReflectionQuality": "0", "ShadowQuality": "1", "NightShadows": "0", "SSGIQuality": "0", "RTGIQuality": "0", "ShaderQuality": "1", "AudioQuality": "1", "DeformableSnowQuality": "0", "ParticlesSettings": "1", "VolumetricFogQuality": "1", "LensEffects": "1", "MotionBlurQuality": "0"},
-        "Medium": {"CarLOD": "1", "EnvStreamingTex": "1", "GeometryQuality": "2", "ReflectionQuality": "2", "SSRQuality": "2", "RTReflectionQuality": "0", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "1", "RTGIQuality": "0", "ShaderQuality": "1", "AudioQuality": "2", "DeformableSnowQuality": "1", "ParticlesSettings": "1", "VolumetricFogQuality": "2", "LensEffects": "2", "MotionBlurQuality": "1"},
-        "Very Low": {"CarLOD": "0", "EnvStreamingTex": "0", "GeometryQuality": "0", "ReflectionQuality": "0", "SSRQuality": "0", "RTReflectionQuality": "0", "ShadowQuality": "0", "NightShadows": "0", "SSGIQuality": "0", "RTGIQuality": "0", "ShaderQuality": "0", "AudioQuality": "0", "DeformableSnowQuality": "0", "ParticlesSettings": "0", "VolumetricFogQuality": "0", "LensEffects": "0", "MotionBlurQuality": "0"},
-        "Ultra": {"CarLOD": "3", "EnvStreamingTex": "3", "GeometryQuality": "4", "ReflectionQuality": "3", "SSRQuality": "4", "RTReflectionQuality": "0", "ShadowQuality": "3", "NightShadows": "1", "SSGIQuality": "2", "RTGIQuality": "0", "ShaderQuality": "3", "AudioQuality": "4", "DeformableSnowQuality": "3", "ParticlesSettings": "3", "VolumetricFogQuality": "4", "LensEffects": "4", "MotionBlurQuality": "3"},
+    rt_presets = {
+        "High + RT": {"CarLOD": "2", "EnvStreamingTex": "2", "GeometryQuality": "3", "SSRQuality": "0", "RTReflectionQuality": "1", "SSGIQuality": "0", "RTGIQuality": "1"},
+        "Ultra + RT": {"CarLOD": "3", "EnvStreamingTex": "3", "GeometryQuality": "4", "SSRQuality": "0", "RTReflectionQuality": "2", "SSGIQuality": "0", "RTGIQuality": "2"},
+        "Extreme + RT": {"CarLOD": "4", "EnvStreamingTex": "4", "GeometryQuality": "5", "SSRQuality": "0", "RTReflectionQuality": "3", "SSGIQuality": "0", "RTGIQuality": "3"},
     }
-    preset_name = next((name for name, signature in forza_presets.items() if all(options.get(key) == value for key, value in signature.items())), None)
+    preset_name = next((name for name, signature in rt_presets.items() if all(options.get(key) == value for key, value in signature.items())), None)
+    if preset_name is None:
+        preset_name = next((name for name, signature in FORZA_PRESET_SIGNATURES.items() if all(options.get(key) == value for key, value in signature.items())), None)
     if preset_name:
         r[QUICK_PRESET] = preset_name
     elif len(quality_values) > 1:

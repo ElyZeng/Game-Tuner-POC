@@ -22,6 +22,7 @@ from .settings_parser import (
     UPSCALING,
     FRAME_GENERATION,
     _parse_ini_kv,
+    FORZA_PRESET_SIGNATURES,
 )
 QUICK_PRESET = "quick_preset"
 
@@ -269,6 +270,13 @@ def _write_forza_xml(
         w, h = val.split("x", 1)
         result = _replace_xml_attr(result, "ResolutionWidth", "value", w.strip())
         result = _replace_xml_attr(result, "ResolutionHeight", "value", h.strip())
+
+    # Overall preset writes the captured base-game quality signature. RT variants
+    # remain read-only because their ray-tracing level is a separate dimension.
+    preset = settings.get(QUICK_PRESET)
+    if preset in FORZA_PRESET_SIGNATURES:
+        for option_id, option_value in FORZA_PRESET_SIGNATURES[preset].items():
+            result = _replace_xml_option(result, option_id, option_value)
 
     # Screen Mode
     val = settings.get(SCREEN_MODE)
