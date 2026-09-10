@@ -393,6 +393,19 @@ class TestForzaWriter:
 
         assert result["quick_preset"] == "High"
 
+    @pytest.mark.parametrize("preset_name, values", [
+        ("Extreme", ["4", "4", "5", "4", "5", "0", "4", "2", "2", "0", "4", "4", "4", "4", "5", "4", "3"]),
+        ("Lowest", ["0"] * 17),
+    ])
+    def test_forza_infers_extreme_and_lowest_presets(self, preset_name, values):
+        from config_manager.settings_parser import extract_key_settings
+
+        ids = ["CarLOD", "EnvStreamingTex", "GeometryQuality", "ReflectionQuality", "SSRQuality", "RTReflectionQuality", "ShadowQuality", "NightShadows", "SSGIQuality", "RTGIQuality", "ShaderQuality", "AudioQuality", "DeformableSnowQuality", "ParticlesSettings", "VolumetricFogQuality", "LensEffects", "MotionBlurQuality"]
+        content = '<UserConfig Version="52"><selections>' + ''.join(f'<option id="{key}" value="{value}" />' for key, value in zip(ids, values)) + '</selections></UserConfig>'
+        result = extract_key_settings("Forza Horizon 6", [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}])
+
+        assert result["quick_preset"] == preset_name
+
     def test_forza_writes_xess_and_fsr_quality_enums(self):
         from config_manager.settings_writer import _write_forza_xml
 
