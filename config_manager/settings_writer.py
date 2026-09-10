@@ -273,6 +273,8 @@ def _write_forza_xml(
     # Screen Mode
     val = settings.get(SCREEN_MODE)
     if val is not None:
+        if val == "Borderless Windowed" and re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
+            return result
         result = _replace_xml_attr(
             result, "Fullscreen", "value", "1" if val == "Fullscreen" else "0"
         )
@@ -288,7 +290,7 @@ def _write_forza_xml(
     if val is not None:
         fr_map = {"30 FPS": "0", "40 FPS": "1", "60 FPS": "2", "120 FPS": "3", "Unlimited": "4"}
         if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
-            fr_map["60 FPS"] = "3"
+            fr_map = {"20 FPS": "0", "30 FPS": "1", "40 FPS": "2", "60 FPS": "3", "120 FPS": "4", "Unlimited": "5"}
         fv = fr_map.get(val, "4")
         result = _replace_xml_option(result, "FrameRate", fv)
 
@@ -307,7 +309,8 @@ def _write_forza_xml(
             result = _replace_xml_option(result, "DLSSMode", "0")
             result = _replace_xml_option(result, "FSR3Mode", "0")
         elif "XeSS" in val:
-            result = _replace_xml_option(result, "XeSSMode", "1")
+            xess_map = {"XeSS Ultra Quality Plus": "1", "XeSS Ultra Quality": "2", "XeSS Quality": "3", "XeSS Balanced": "4", "XeSS Performance": "5"}
+            result = _replace_xml_option(result, "XeSSMode", xess_map.get(val, "1"))
             result = _replace_xml_option(result, "DLSSMode", "0")
             result = _replace_xml_option(result, "FSR3Mode", "0")
         elif "DLSS" in val:
@@ -315,7 +318,8 @@ def _write_forza_xml(
             result = _replace_xml_option(result, "XeSSMode", "0")
             result = _replace_xml_option(result, "FSR3Mode", "0")
         elif "FSR" in val:
-            result = _replace_xml_option(result, "FSR3Mode", "1")
+            fsr_map = {"FSR Quality": "1", "FSR Balance": "2", "FSR Performance": "3", "FSR Ultra Performance": "4"}
+            result = _replace_xml_option(result, "FSR3Mode", fsr_map.get(val, "1"))
             result = _replace_xml_option(result, "XeSSMode", "0")
             result = _replace_xml_option(result, "DLSSMode", "0")
 
