@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.06.2 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 reports Dynamic Resolution and independent Frame Generation as `N/A` when the game does not expose them as separate settings.
+- Forza guarded Write rules no longer advertise those unsupported settings.
+
+---
+
 # v0.06.1 (2026-09-09)
 
 ### Fixed
