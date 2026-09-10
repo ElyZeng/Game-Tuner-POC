@@ -24,9 +24,7 @@
       "screen_mode",
       "vsync",
       "frame_limit",
-      "dynamic_resolution",
-      "upscaling",
-      "frame_generation"
+      "upscaling"
     ],
     "reader_id": "existing-parser",
     "writer_id": "forza-xml-writer"
