@@ -1,5 +1,12 @@
 # Changelog
 
+# v0.06.3 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 Version 52 Screen Mode now uses the game's actual Full Screen toggle semantics for Read and Write.
+
+---
+
 # v0.06.2 (2026-09-10)
 
 ### Fixed
