@@ -266,7 +266,7 @@ class TestForzaPresetInference:
             [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
         )
 
-        assert result["screen_mode"] == "Windowed"
+        assert result["screen_mode"] == "Fullscreen"
 
         def test_forza_reports_unavailable_independent_frame_generation_as_na(self):
                 from config_manager.settings_parser import extract_key_settings
@@ -352,7 +352,7 @@ class TestForzaWriter:
         content = '<UserConfig Version="52"><settings><Fullscreen value="1" /></settings></UserConfig>'
         result = _write_forza_xml(content, {"screen_mode": "Fullscreen"})
 
-        assert '<Fullscreen value="0" />' in result
+        assert '<Fullscreen value="1" />' in result
 
     def test_forza_horizon_6_writes_60_fps_as_frame_rate_three(self):
         from config_manager.settings_writer import _write_forza_xml

@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.06.4 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 Screen Mode now preserves the confirmed Version 52 semantics: `Fullscreen=1` is Fullscreen and `Fullscreen=0` is Windowed.
+- Added regression coverage based on the real persistence test.
+
+---
+
 # v0.06.3 (2026-09-10)
 
 ### Fixed
