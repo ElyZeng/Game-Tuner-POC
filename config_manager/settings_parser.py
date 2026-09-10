@@ -566,7 +566,15 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
         for option_id in quality_ids
         if option_id in options
     }
-    if len(quality_values) > 1:
+    forza_presets = {
+        # Signatures captured from the game's Graphics & Performance preset UI.
+        "High": {"CarLOD": "2", "EnvStreamingTex": "2", "GeometryQuality": "3", "ReflectionQuality": "3", "SSRQuality": "3", "RTReflectionQuality": "0", "ShadowQuality": "2", "NightShadows": "0", "SSGIQuality": "1", "RTGIQuality": "0", "ShaderQuality": "2", "AudioQuality": "3", "DeformableSnowQuality": "2", "ParticlesSettings": "2", "VolumetricFogQuality": "3", "LensEffects": "3", "MotionBlurQuality": "2"},
+        "Ultra": {"CarLOD": "3", "EnvStreamingTex": "3", "GeometryQuality": "4", "ReflectionQuality": "3", "SSRQuality": "4", "RTReflectionQuality": "0", "ShadowQuality": "3", "NightShadows": "1", "SSGIQuality": "2", "RTGIQuality": "0", "ShaderQuality": "3", "AudioQuality": "4", "DeformableSnowQuality": "3", "ParticlesSettings": "3", "VolumetricFogQuality": "4", "LensEffects": "4", "MotionBlurQuality": "3"},
+    }
+    preset_name = next((name for name, signature in forza_presets.items() if all(options.get(key) == value for key, value in signature.items())), None)
+    if preset_name:
+        r[QUICK_PRESET] = preset_name
+    elif len(quality_values) > 1:
         r[QUICK_PRESET] = "Custom"
     elif len(quality_values) == 1:
         r[QUICK_PRESET] = f"Preset Level {next(iter(quality_values))}"
