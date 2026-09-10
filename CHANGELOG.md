@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.07.0 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 now infers the captured Extreme and Lowest Graphics & Performance preset signatures.
+- Unknown or mixed component quality combinations remain `Custom`.
+
+---
+
 # v0.06.8 (2026-09-10)
 
 ### Fixed
