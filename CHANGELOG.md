@@ -1,5 +1,17 @@
 # Changelog
 
+# v0.07.2 (2026-09-10)
+
+### Added
+- Forza Horizon 6 guarded preset Write for Very Low, Low, Medium, High, Ultra, and Extreme quality signatures.
+- Preset writes update the full captured quality component signature and use existing backup/rollback validation.
+
+### Safety
+- Ray-tracing variants remain Read-only.
+- Overall preset Write is experimental `write_candidate`, not `write_verified`.
+
+---
+
 # v0.07.1 (2026-09-10)
 
 ### Fixed
