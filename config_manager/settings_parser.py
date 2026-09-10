@@ -121,6 +121,22 @@ SETTING_OPTIONS: Dict[str, List[str]] = {
     ],
 }
 
+FORZA_SETTING_OPTIONS: Dict[str, List[str]] = {
+    SCREEN_MODE: ["—", "Fullscreen", "Windowed"],
+    FRAME_LIMIT: ["—", "20 FPS", "30 FPS", "40 FPS", "60 FPS", "120 FPS", "Unlimited"],
+    UPSCALING: [
+        "—", "Off", "FSR Quality", "FSR Balance", "FSR Performance",
+        "FSR Ultra Performance", "XeSS Ultra Quality Plus", "XeSS Ultra Quality",
+        "XeSS Quality", "XeSS Balanced", "XeSS Performance",
+    ],
+}
+
+
+def setting_options_for_game(game_name: str, key: str) -> List[str]:
+    if "forza horizon 6" in game_name.casefold() and key in FORZA_SETTING_OPTIONS:
+        return FORZA_SETTING_OPTIONS[key]
+    return SETTING_OPTIONS.get(key, ["—"])
+
 # Per-game Quick Preset option lists keyed by parser-type string.
 QUICK_PRESET_OPTIONS: Dict[str, List[str]] = {
     # Cyberpunk 2077 — QuickPresets field in UserSettings.json; known values from game UI
@@ -506,7 +522,7 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     if fr is not None:
         fr_map = {"0": "30 FPS", "1": "40 FPS", "2": "60 FPS", "3": "120 FPS", "4": "Unlimited"}
         if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content) and fr == "3":
-            fr_map["3"] = "60 FPS"
+            fr_map = {"0": "20 FPS", "1": "30 FPS", "2": "40 FPS", "3": "60 FPS", "4": "120 FPS", "5": "Unlimited"}
         r[FRAME_LIMIT] = fr_map.get(fr, f"Preset {fr}")
 
     # Dynamic Resolution
@@ -518,11 +534,13 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     xess_sel = _sel_val("XeSSMode")
     active = []
     if xess_sel and xess_sel != "0":
-        active.append(f"XeSS (preset {xess_sel})")
+        xess_map = {"1": "XeSS Ultra Quality Plus", "2": "XeSS Ultra Quality", "3": "XeSS Quality", "4": "XeSS Balanced", "5": "XeSS Performance"}
+        active.append(xess_map.get(xess_sel, f"XeSS (preset {xess_sel})"))
     if dlss_sel and dlss_sel != "0":
         active.append(f"DLSS (preset {dlss_sel})")
     if fsr3_sel and fsr3_sel != "0":
-        active.append(f"FSR3 (preset {fsr3_sel})")
+        fsr_map = {"1": "FSR Quality", "2": "FSR Balance", "3": "FSR Performance", "4": "FSR Ultra Performance"}
+        active.append(fsr_map.get(fsr3_sel, f"FSR3 (preset {fsr3_sel})"))
     r[UPSCALING] = ", ".join(active) if active else "Off"
 
     # Forza exposes frame generation through the selected upscaler (for

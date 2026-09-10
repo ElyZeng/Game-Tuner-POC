@@ -346,6 +346,38 @@ class TestForzaPresetInference:
 
 
 class TestForzaWriter:
+    def test_forza_reads_xess_quality_names(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = '<UserConfig Version="52"><selections><option id="XeSSMode" value="3" /></selections></UserConfig>'
+        result = extract_key_settings(
+            "Forza Horizon 6",
+            [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+        )
+
+        assert result["upscaling"] == "XeSS Quality"
+
+    def test_forza_reads_fsr_quality_names(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = '<UserConfig Version="52"><selections><option id="FSR3Mode" value="4" /></selections></UserConfig>'
+        result = extract_key_settings(
+            "Forza Horizon 6",
+            [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+        )
+
+        assert result["upscaling"] == "FSR Ultra Performance"
+
+    def test_forza_writes_xess_and_fsr_quality_enums(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><selections><option id="FSR3Mode" value="0" /><option id="XeSSMode" value="0" /></selections></UserConfig>'
+        xess = _write_forza_xml(content, {"upscaling": "XeSS Balanced"})
+        fsr = _write_forza_xml(content, {"upscaling": "FSR Performance"})
+
+        assert '<option id="XeSSMode" value="4" />' in xess
+        assert '<option id="FSR3Mode" value="3" />' in fsr
+
     def test_forza_screen_mode_writes_fullscreen_choice_sidecar(self, tmp_path):
         from config_manager.settings_writer import write_settings
 
@@ -378,6 +410,22 @@ class TestForzaWriter:
         result = _write_forza_xml(content, {"frame_limit": "60 FPS"})
 
         assert '<option id="FrameRate" value="3" />' in result
+
+    def test_forza_horizon_6_writes_30_fps_as_frame_rate_one(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><selections><option id="FrameRate" value="3" /></selections></UserConfig>'
+        result = _write_forza_xml(content, {"frame_limit": "30 FPS"})
+
+        assert '<option id="FrameRate" value="1" />' in result
+
+    def test_forza_horizon_6_does_not_write_borderless_windowed(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><settings><Fullscreen value="1" /></settings></UserConfig>'
+        result = _write_forza_xml(content, {"screen_mode": "Borderless Windowed"})
+
+        assert '<Fullscreen value="1" />' in result
 
 
         class TestF1PresetInference:
