@@ -123,7 +123,7 @@ SETTING_OPTIONS: Dict[str, List[str]] = {
 
 FORZA_SETTING_OPTIONS: Dict[str, List[str]] = {
     SCREEN_MODE: ["—", "Fullscreen", "Windowed"],
-    FRAME_LIMIT: ["—", "20 FPS", "30 FPS", "40 FPS", "60 FPS", "120 FPS", "Unlimited"],
+    FRAME_LIMIT: ["—", "20 FPS", "30 FPS", "60 FPS", "Unlimited"],
     UPSCALING: [
         "—", "Off", "FSR Quality", "FSR Balance", "FSR Performance",
         "FSR Ultra Performance", "XeSS Ultra Quality Plus", "XeSS Ultra Quality",
@@ -537,7 +537,7 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     if fr is not None:
         fr_map = {"0": "30 FPS", "1": "40 FPS", "2": "60 FPS", "3": "120 FPS", "4": "Unlimited"}
         if re.search(r'<UserConfig\b[^>]*\bVersion="52"', content):
-            fr_map = {"0": "20 FPS", "1": "30 FPS", "2": "40 FPS", "3": "60 FPS", "4": "120 FPS", "5": "Unlimited"}
+            fr_map = {"1": "20 FPS", "2": "30 FPS", "3": "60 FPS", "4": "Unlimited"}
         r[FRAME_LIMIT] = fr_map.get(fr, f"Preset {fr}")
 
     # Dynamic Resolution
