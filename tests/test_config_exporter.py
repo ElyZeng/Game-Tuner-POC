@@ -254,6 +254,29 @@ class TestF1Parser:
 
 
 class TestForzaPresetInference:
+        def test_forza_reports_unavailable_independent_frame_generation_as_na(self):
+                from config_manager.settings_parser import extract_key_settings
+
+                content = """<UserConfig Version="52">
+    <settings>
+        <UseDynamicOptimization value="1" />
+    </settings>
+    <selections>
+        <option id="FSR3Mode" value="1" />
+        <option id="DLSSGMode" value="0" />
+        <option id="UseDynamicOptimization" value="0" />
+    </selections>
+</UserConfig>"""
+
+                result = extract_key_settings(
+                        "Forza Horizon 6",
+                        [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+                )
+
+                assert result["upscaling"] == "FSR3 (preset 1)"
+                assert result["dynamic_resolution"] == "N/A"
+                assert result["frame_generation"] == "N/A"
+
         def test_forza_horizon_6_frame_rate_value_three_is_60_fps(self):
                 from config_manager.settings_parser import extract_key_settings
 

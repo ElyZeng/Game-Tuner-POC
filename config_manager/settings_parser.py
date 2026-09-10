@@ -510,9 +510,7 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
         r[FRAME_LIMIT] = fr_map.get(fr, f"Preset {fr}")
 
     # Dynamic Resolution
-    dopt = _sel_val("UseDynamicOptimization")
-    if dopt is not None:
-        r[DYNAMIC_RESOLUTION] = "On" if dopt != "0" else "Off"
+    r[DYNAMIC_RESOLUTION] = "N/A"
 
     # Upscaling
     dlss_sel = _sel_val("DLSSMode")
@@ -527,12 +525,9 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
         active.append(f"FSR3 (preset {fsr3_sel})")
     r[UPSCALING] = ", ".join(active) if active else "Off"
 
-    # Frame Generation
-    dlssg = _sel_val("DLSSGMode")
-    parts = []
-    if dlssg and dlssg != "0":
-        parts.append("DLSS FG: On")
-    r[FRAME_GENERATION] = ", ".join(parts) if parts else "Off"
+    # Forza exposes frame generation through the selected upscaler (for
+    # example FSR 3.1.5), not as an independent graphics setting.
+    r[FRAME_GENERATION] = "N/A"
 
     # Forza has no single overall preset field. Infer Custom when the quality
     # selections are mixed; preserve a uniform numeric level without guessing
