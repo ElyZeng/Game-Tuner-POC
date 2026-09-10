@@ -562,7 +562,7 @@ def write_settings(
                     _safe_write(path, new_content)
                     results.append({"path": path, "status": "ok", "detail": "Forza XML settings written"})
                     if SCREEN_MODE in to_write:
-                        fullscreen_value = b"1" if to_write[SCREEN_MODE] == "Fullscreen" else b"0"
+                        fullscreen_value = bytes([1 if to_write[SCREEN_MODE] == "Fullscreen" else 0])
                         for auxiliary_path in forza_auxiliary_paths(config_files):
                             with open(auxiliary_path, "wb") as auxiliary_file:
                                 auxiliary_file.write(fullscreen_value)
