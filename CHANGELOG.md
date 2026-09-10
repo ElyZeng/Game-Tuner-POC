@@ -1,5 +1,14 @@
 # Changelog
 
+# v0.06.7 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 now exposes and writes FSR Quality, Balance, Performance, and Ultra Performance modes.
+- Forza Horizon 6 now exposes and writes XeSS Ultra Quality Plus, Ultra Quality, Quality, Balanced, and Performance modes.
+- Corrected Version 52 frame-limit enum handling and hides unsupported Borderless Windowed selection for Forza.
+
+---
+
 # v0.06.6 (2026-09-10)
 
 ### Fixed
