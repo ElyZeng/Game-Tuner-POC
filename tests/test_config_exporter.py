@@ -254,6 +254,20 @@ class TestF1Parser:
 
 
 class TestForzaPresetInference:
+    def test_forza_horizon_6_screen_mode_uses_game_full_screen_semantics(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = """<UserConfig Version="52">
+    <settings><Fullscreen value="1" /></settings>
+</UserConfig>"""
+
+        result = extract_key_settings(
+            "Forza Horizon 6",
+            [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}],
+        )
+
+        assert result["screen_mode"] == "Windowed"
+
         def test_forza_reports_unavailable_independent_frame_generation_as_na(self):
                 from config_manager.settings_parser import extract_key_settings
 
@@ -332,6 +346,14 @@ class TestForzaPresetInference:
 
 
 class TestForzaWriter:
+    def test_forza_horizon_6_writes_fullscreen_using_version_52_semantics(self):
+        from config_manager.settings_writer import _write_forza_xml
+
+        content = '<UserConfig Version="52"><settings><Fullscreen value="1" /></settings></UserConfig>'
+        result = _write_forza_xml(content, {"screen_mode": "Fullscreen"})
+
+        assert '<Fullscreen value="0" />' in result
+
     def test_forza_horizon_6_writes_60_fps_as_frame_rate_three(self):
         from config_manager.settings_writer import _write_forza_xml
 
