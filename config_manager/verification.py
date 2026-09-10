@@ -16,6 +16,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional
 import requests
 
 from .settings_parser import extract_key_settings
+from .settings_writer import forza_auxiliary_paths
 
 logger = logging.getLogger(__name__)
 
@@ -317,6 +318,16 @@ def backup_and_write(
             shutil.copy2(path, backup_file)
             originals.append((path, content))
 
+    auxiliary_originals: List[tuple[Path, Optional[bytes]]] = []
+    for index, auxiliary_path_text in enumerate(forza_auxiliary_paths(config_files)):
+        auxiliary_path = Path(auxiliary_path_text)
+        if auxiliary_path.is_file():
+            backup_file = staging / f"auxiliary-{index}-{auxiliary_path.name}"
+            shutil.copy2(auxiliary_path, backup_file)
+            auxiliary_originals.append((auxiliary_path, auxiliary_path.read_bytes()))
+        else:
+            auxiliary_originals.append((auxiliary_path, None))
+
     result = write(game, config_files, settings)
     expected = {key: value for key, value in settings.items() if value is not None}
     reread = []
@@ -330,6 +341,11 @@ def backup_and_write(
     if not valid:
         for path, content in originals:
             path.write_text(content, encoding="utf-8")
+        for path, content in auxiliary_originals:
+            if content is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.write_bytes(content)
         shutil.rmtree(staging, ignore_errors=True)
         raise VerificationError("write_validation_failed_restored")
 
