@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.06.5 (2026-09-10)
+
+### Fixed
+- Forza Horizon 6 Screen Mode writes now update both `UserConfigSelections` and the `fullscreen_choice` launch-state sidecar.
+- The sidecar is included in guarded backups and rollback.
+
+---
+
 # v0.06.4 (2026-09-10)
 
 ### Fixed
