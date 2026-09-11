@@ -130,6 +130,28 @@ class TestConfigWriterXML:
 # ---------------------------------------------------------------------------
 
 class TestConfigPackage:
+    def test_import_v2_restores_forza_fullscreen_sidecar(self, tmp_path):
+        config_path = tmp_path / "ForzaHorizon6" / "LocalStorage_Shared" / "ForzaUserConfigSelections" / "UserConfigSelections"
+        config_path.parent.mkdir(parents=True)
+        content = '<UserConfig Version="52"><settings><Fullscreen value="1" /></settings></UserConfig>'
+        package_path = tmp_path / "forza.json"
+        package_path.write_text(json.dumps({
+            "version": 2,
+            "games": {"Forza Horizon 6": {"config_files": [{
+                "expanded_path": str(config_path),
+                "found": True,
+                "content": content,
+            }]}}
+        }), encoding="utf-8")
+
+        restored = ConfigPackage().import_package(str(package_path))
+
+        sidecar = config_path.parent.parent.parent / "fullscreen_choice"
+        restored_paths = [os.path.abspath(path) for path in restored["Forza Horizon 6"]]
+        assert os.path.abspath(config_path) in restored_paths
+        assert os.path.abspath(sidecar) in restored_paths
+        assert sidecar.read_bytes() == bytes([1])
+
     def test_export_and_import_json(self, tmp_path):
         # Create a dummy config file
         cfg_file = tmp_path / "game_config.json"

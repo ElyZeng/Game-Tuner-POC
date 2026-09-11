@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Any, Dict, List
 
 from .reader import ConfigReader
@@ -134,8 +135,30 @@ class ConfigPackage:
                     with open(path, "w", encoding="utf-8") as fh:
                         fh.write(content)
                     restored_paths.append(path)
+                    sidecar = self._forza_fullscreen_sidecar(path, content)
+                    if sidecar is not None:
+                        with open(sidecar, "wb") as fh:
+                            fh.write(bytes([1 if self._forza_fullscreen_value(content) == "1" else 0]))
+                        restored_paths.append(sidecar)
                 except Exception:
                     pass
             restored[game_name] = restored_paths
 
         return restored
+
+    @staticmethod
+    def _forza_fullscreen_sidecar(path: str, content: str) -> str | None:
+        config_path = os.path.normpath(path)
+        if (
+            os.path.basename(config_path) == "UserConfigSelections"
+            and os.path.basename(os.path.dirname(config_path)) == "ForzaUserConfigSelections"
+            and "<UserConfig" in content
+        ):
+            root = os.path.dirname(os.path.dirname(os.path.dirname(config_path)))
+            return os.path.join(root, "fullscreen_choice")
+        return None
+
+    @staticmethod
+    def _forza_fullscreen_value(content: str) -> str:
+        match = re.search(r'<Fullscreen\s+value="([01])"', content)
+        return match.group(1) if match else "0"
