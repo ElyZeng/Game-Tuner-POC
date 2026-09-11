@@ -1,5 +1,17 @@
 # Changelog
 
+# v0.07.3 (2026-09-11)
+
+### Fixed
+- Forza Horizon 6 FrameRate mapping now matches the current UI: 20, 30, 60, and Unlimited.
+- Removed unsupported 40 FPS and 120 FPS FrameRate options from the Forza dropdown.
+
+### Validation
+- Full test suite: 174 passed.
+- Windows x64 EXE rebuilt from merged `main`.
+
+---
+
 # v0.07.2 (2026-09-10)
 
 ### Added
