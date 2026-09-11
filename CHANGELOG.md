@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.07.4 (2026-09-11)
+
+### Fixed
+- Rebuilt from the latest `main` after PR #66 so Forza Version 52 FrameRate mapping is included in the distributed EXE.
+- Release packaging includes both verification manifest assets required by Check Rules.
+
+---
+
 # v0.07.3 (2026-09-11)
 
 ### Fixed
