@@ -317,7 +317,7 @@ def _write_forza_xml(
             result = _replace_xml_option(result, "DLSSMode", "0")
             result = _replace_xml_option(result, "FSR3Mode", "0")
         elif "XeSS" in val:
-            xess_map = {"XeSS Ultra Quality Plus": "1", "XeSS Ultra Quality": "2", "XeSS Quality": "3", "XeSS Balanced": "4", "XeSS Performance": "5"}
+            xess_map = {"XeSS Ultra Quality Plus": "1", "XeSS Ultra Quality": "2", "XeSS Quality": "3", "XeSS Balanced": "4", "XeSS Performance": "5", "XeSS Ultra Performance": "6"}
             result = _replace_xml_option(result, "XeSSMode", xess_map.get(val, "1"))
             result = _replace_xml_option(result, "DLSSMode", "0")
             result = _replace_xml_option(result, "FSR3Mode", "0")

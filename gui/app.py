@@ -1032,6 +1032,7 @@ class App:
     def _do_import(self, package_path: str) -> None:
         try:
             restored = self._package.import_package(package_path)
+            self.root.after(0, self._scan_games)
             count = sum(len(v) for v in restored.values())
             self.root.after(
                 0,
