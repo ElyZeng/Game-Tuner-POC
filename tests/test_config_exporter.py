@@ -322,7 +322,7 @@ class TestForzaPresetInference:
 
         @pytest.mark.parametrize(
             ("enum_value", "expected"),
-            [("0", "20 FPS"), ("1", "30 FPS"), ("2", "40 FPS"), ("3", "60 FPS"), ("4", "120 FPS"), ("5", "Unlimited")],
+            [("1", "20 FPS"), ("2", "30 FPS"), ("3", "60 FPS"), ("4", "Unlimited")],
         )
         def test_forza_version_52_reads_all_frame_rate_enums(self, enum_value, expected):
             from config_manager.settings_parser import extract_key_settings
@@ -475,7 +475,7 @@ class TestForzaWriter:
         content = '<UserConfig Version="52"><selections><option id="FrameRate" value="3" /></selections></UserConfig>'
         result = _write_forza_xml(content, {"frame_limit": "30 FPS"})
 
-        assert '<option id="FrameRate" value="1" />' in result
+        assert '<option id="FrameRate" value="2" />' in result
 
     def test_forza_horizon_6_does_not_write_borderless_windowed(self):
         from config_manager.settings_writer import _write_forza_xml
@@ -985,12 +985,10 @@ class TestForzaVersion52FrameRateEnums:
     @pytest.mark.parametrize(
         ("enum_value", "expected"),
         [
-            ("0", "20 FPS"),
-            ("1", "30 FPS"),
-            ("2", "40 FPS"),
+            ("1", "20 FPS"),
+            ("2", "30 FPS"),
             ("3", "60 FPS"),
-            ("4", "120 FPS"),
-            ("5", "Unlimited"),
+            ("4", "Unlimited"),
         ],
     )
     def test_reads_all_frame_rate_enums(self, enum_value, expected):
