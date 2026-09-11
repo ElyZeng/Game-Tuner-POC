@@ -392,6 +392,14 @@ class TestForzaWriter:
 
         assert result["upscaling"] == "XeSS Quality"
 
+    def test_forza_reads_xess_ultra_performance(self):
+        from config_manager.settings_parser import extract_key_settings
+
+        content = '<UserConfig Version="52"><selections><option id="XeSSMode" value="6" /></selections></UserConfig>'
+        result = extract_key_settings("Forza Horizon 6", [{"found": True, "content": content, "expanded_path": "UserConfigSelections"}])
+
+        assert result["upscaling"] == "XeSS Ultra Performance"
+
     def test_forza_reads_fsr_quality_names(self):
         from config_manager.settings_parser import extract_key_settings
 
@@ -435,6 +443,9 @@ class TestForzaWriter:
 
         assert '<option id="XeSSMode" value="4" />' in xess
         assert '<option id="FSR3Mode" value="3" />' in fsr
+
+        ultra_performance = _write_forza_xml(content, {"upscaling": "XeSS Ultra Performance"})
+        assert '<option id="XeSSMode" value="6" />' in ultra_performance
 
     def test_forza_screen_mode_writes_fullscreen_choice_sidecar(self, tmp_path):
         from config_manager.settings_writer import write_settings

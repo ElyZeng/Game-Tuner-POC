@@ -127,7 +127,7 @@ FORZA_SETTING_OPTIONS: Dict[str, List[str]] = {
     UPSCALING: [
         "—", "Off", "FSR Quality", "FSR Balance", "FSR Performance",
         "FSR Ultra Performance", "XeSS Ultra Quality Plus", "XeSS Ultra Quality",
-        "XeSS Quality", "XeSS Balanced", "XeSS Performance",
+        "XeSS Quality", "XeSS Balanced", "XeSS Performance", "XeSS Ultra Performance",
     ],
     QUICK_PRESET: ["—", "Very Low", "Low", "Medium", "High", "Ultra", "Extreme"],
 }
@@ -549,7 +549,7 @@ def _parse_forza_xml(content: str) -> Dict[str, Optional[str]]:
     xess_sel = _sel_val("XeSSMode")
     active = []
     if xess_sel and xess_sel != "0":
-        xess_map = {"1": "XeSS Ultra Quality Plus", "2": "XeSS Ultra Quality", "3": "XeSS Quality", "4": "XeSS Balanced", "5": "XeSS Performance"}
+        xess_map = {"1": "XeSS Ultra Quality Plus", "2": "XeSS Ultra Quality", "3": "XeSS Quality", "4": "XeSS Balanced", "5": "XeSS Performance", "6": "XeSS Ultra Performance"}
         active.append(xess_map.get(xess_sel, f"XeSS (preset {xess_sel})"))
     if dlss_sel and dlss_sel != "0":
         active.append(f"DLSS (preset {dlss_sel})")
