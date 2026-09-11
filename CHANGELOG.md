@@ -1,5 +1,21 @@
 # Changelog
 
+# v0.07.5 (2026-09-11)
+
+### Added
+- Added a reproducible Windows release build tool that runs tests, builds the PyInstaller bundle, creates SHA-256 checksums, includes verification manifest assets, and validates the final release asset set.
+
+### Fixed
+- Forza Horizon 6 v2 config package Restore now also restores the `fullscreen_choice` binary sidecar from the restored `UserConfigSelections` XML.
+- Import now refreshes the GUI after a successful Restore so restored values are shown immediately.
+- Forza Horizon 6 XeSS Ultra Performance now maps to `XeSSMode=6` instead of showing as an unknown preset.
+
+### Validation
+- Full test suite: 176 passed.
+- Windows x64 PR EXE manually validated for Backup, Restore, and Consistency.
+
+---
+
 # v0.07.4 (2026-09-11)
 
 ### Fixed
